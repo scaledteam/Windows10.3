@@ -2,7 +2,7 @@
 @inputs [Screen Device]:wirelink Keyboard
 @persist SystemOn Resolution:vector2 #System
 @persist CursorPos:vector2 Mouse1 ChangedMouse1 #IO
-@persist ROM:table FirstFile:string ReadOnly #ROM
+@persist ROM:gtable FirstFile:string #ROM
 @persist SysTimerNum SysTimer Power NowPower AppTimerNum AppTimer #Timer
 @persist [App AppPos AppEGPID]:table [ThisApp AppClose AppMove]:string FullLoad #Apps
 @persist SysTextEnable SysTextLine LongTap StartEGPID [AppLaunch AppCreate AppGraphics SysText DialogApp Update StartMenuChoose]:string #Functions
@@ -125,8 +125,7 @@ if(first()){#Functions
     function appT(VarName:string,ID:string,Write:string) {App[ThisApp,table][VarName,table][ID,string]=Write}
     
     #ROM functions
-    function romWrite(){if(!ReadOnly){fileWrite(FirstFile,vonEncode(ROM))}}
-    function romSaveApp(AppName:string){ROM["Apps",table][AppName,table]=App[AppName,table] romWrite()}
+    function romSaveApp(AppName:string){ROM["Apps",table][AppName,table]=App[AppName,table]}
     function romLoadApp(AppName:string){App[AppName,table]=ROM["Apps",table][AppName,table]}
     function romLoadAppVars(AppName:string){App[AppName,table]=App[AppName,table]:add(ROM["Apps",table][AppName,table])}
     function number romCreate(){if(!ROM["Apps",table][ThisApp,table]){ROM["Apps",table][ThisApp,table]=table() return 1} return 0}
@@ -180,12 +179,23 @@ if(first()){#Functions
         else{SysText=SysText:sub(1,SysText:length()-SysTextLine-1)+SysText:sub(SysText:length()-SysTextLine+1,SysText:length()) }} return SysText}
     
     function string appChat(FunctionName:string){runOnChat(1)
+        #!win AppName Varriable String
         if(chatClk(find())){WinChat=find():lastSaid():explode(" ") 
             if(WinChat[1,string]=="!win"&WinChat[2,string]==ThisApp&WinChat[3,string]==FunctionName){hideChat(1) return WinChat[4,string]} } return "" }
     
-    function string appChat(FunctionName:string){runOnChat(1)
+    function appChat(){runOnChat(1)
+        #!win AppName Type Varriable Number
         if(chatClk(find())){WinChat=find():lastSaid():explode(" ") 
-            if(WinChat[1,string]=="!win"&WinChat[2,string]==ThisApp&WinChat[3,string]==FunctionName){hideChat(1) return WinChat[4,string]} } return "" }
+            if(WinChat[1,string]=="!win"){hideChat(1) if(WinChat[2,string]==ThisApp){
+                switch(WinChat[3,string]){
+                case "number", appN(WinChat[4,string],WinChat[5,string]:toNumber()) break
+                case "string", appS(WinChat[4,string],WinChat[5,string]) break
+                case "vector", WinChatExplode=WinChat[5,string]:explode(",") appV(WinChat[4,string],vec(WinChatExplode[1,string]:toNumber(),WinChatExplode[2,string]:toNumber(),WinChatExplode[3,string]:toNumber())) break
+                case "vector2", WinChatExplode=WinChat[5,string]:explode(",") appV2(WinChat[4,string],vec2(WinChatExplode[1,string]:toNumber(),WinChatExplode[2,string]:toNumber())) break
+                case "vector4", WinChatExplode=WinChat[5,string]:explode(",") appV4(WinChat[4,string],vec4(WinChatExplode[1,string]:toNumber(),WinChatExplode[2,string]:toNumber(),WinChatExplode[3,string]:toNumber(),WinChatExplode[4,string]:toNumber())) break
+                case "entity", appE(WinChat[4,string],entity(WinChat[5,string]:toNumber())) break
+                }
+            } } } }
     
     #Mouse events
     function number appMouse(){return Mouse1&AppPos[ThisApp,number]==1}
@@ -210,7 +220,7 @@ if(first()){#Functions
             appBoxOutline(EGPID+1,EGPID,vec2(),vec2(Size,15),vec())
             appBlackText(EGPID+2,EGPID,appS(VarName):right(Size/textSizeX(10)),vec2(-Size+5,-10)/2,10,0) Screen:egpFont(egp(EGPID+2),"Courier New") }else{
         if(appClick()&egpInrange(egp(EGPID))){SysTextEnable=egp(EGPID)}
-        if(changed(SysTextEnable)){SysText="" SysTextLine=0 Screen:egpSetText(egp(EGPID+2),appS(VarName):right(Size/textSizeX(10))) return 1}
+        if(changed(SysTextEnable)){SysText="" SysTextLine=0 Screen:egpSetText(egp(EGPID+2),appS(VarName):right(Size/textSizeX(10)))}
         if(SysTextEnable==egp(EGPID)){
             if(changed(Keyboard)){if(Keyboard==19&SysTextLine<SysText:length()){SysTextLine++} if(Keyboard==20&SysTextLine>0){SysTextLine--}}  appS(VarName,sysText())
             if(mod(date()["sec",number],2)){SysTextSymbol="|"}else{SysTextSymbol=" "}
@@ -224,7 +234,7 @@ if(first()){#Functions
             appBoxOutline(EGPID+1,EGPID,vec2(),vec2(Size,15),vec())
             appBlackText(EGPID+2,EGPID,appN(VarName):toString():right(Size/textSizeX(10)),vec2(-Size+5,-10)/2,10,0) Screen:egpFont(egp(EGPID+2),"Courier New") }else{
         if(appClick()&egpInrange(egp(EGPID))){SysTextEnable=egp(EGPID)}
-        if(changed(SysTextEnable)){SysText="" SysTextLine=0 Screen:egpSetText(egp(EGPID+2),appN(VarName):toString():right(Size/textSizeX(10))) return 1}
+        if(changed(SysTextEnable)){SysText="" SysTextLine=0 Screen:egpSetText(egp(EGPID+2),appN(VarName):toString():right(Size/textSizeX(10)))}
         if(SysTextEnable==egp(EGPID)){
             if(changed(Keyboard)){if(Keyboard==19&SysTextLine<SysText:length()){SysTextLine++} if(Keyboard==20&SysTextLine>0){SysTextLine--}} appN(VarName,sysText():toNumber())
             if(mod(date()["sec",number],2)){SysTextSymbol="|"}else{SysTextSymbol=""}
@@ -274,7 +284,7 @@ if(first()){#Functions
             for(I=1,ChooseText:count()){if(mod(I,2)){ChooseText1=ChooseText1:add(array(ChooseText[I,string]))}else{ChooseText2=ChooseText2:add(array(ChooseText[I,string]))}}
             appUniText(EGPID+1,ChooseText1:concat("\n\n\n"):explode("\n"),Pos+vec2(3,2.5),10)
             appUniText(EGPID+2,ChooseText2:concat("\n\n\n"):explode("\n"),Pos+vec2(3,17.5),10) 
-            if(!appN(VarName+"List")&appS(VarName)!=ChooseText[appN(VarName+"List"),string]){for(I=1,ChooseText:count()){if(ChooseText[I,string]==appS(VarName)){I=appN(VarName+"List") break}}}
+            if(appS(VarName)!=ChooseText[appN(VarName+"List"),string]){for(I=1,ChooseText:count()){if(appS(VarName)==ChooseText[I,string]){appN(VarName+"List",I-1) Screen:egpPos(egp(EGPID),Pos+vec2(40,7.5+appN(VarName+"List")*15)) break}}}
             if(!appS(VarName)){appS(VarName,ChooseText[appN(VarName+"List")+1,string])} return 1 }else{
         if(appMouse()&egpAppInrange(Pos,Pos+vec2(80,ChooseText:count()*15))){
             appN(VarName+"List",appChoiceHelper(Pos,15):y())
@@ -287,11 +297,11 @@ if(first()){#Functions
     function number appContextMenu(VarName:string,Reason,Chooses:array){ #Cost 0 egpID
         EGPCTM=AppEGPID["FreeEGP",array][1,vector2][2]
         EGPCTMSize=vec2(80,Chooses:count()*10)
-        if(Reason&!Screen:egpHasObject(EGPCTM)){
+        if(!Screen:egpHasObject(EGPCTM)){if(Reason){
             Screen:egpBox(EGPCTM,CursorPos+vec2(3)+EGPCTMSize/2,EGPCTMSize) Screen:egpColor(EGPCTM,vec(200))
             egpAdvBox(EGPCTM-1,EGPCTM,vec2(),vec2(80,10),ROM["System",table]["Theme",vector])
             egpBlackText(EGPCTM-2,EGPCTM,Chooses,vec2(3,0)-EGPCTMSize/2,10)
-            timer("CloseCTM",5000)}else{
+            timer("CloseCTM",5000)}}else{
         if(inrange(CursorPos,Screen:egpPos(EGPCTM)-EGPCTMSize/2,Screen:egpPos(EGPCTM)+EGPCTMSize/2)){
             Screen:egpPos(EGPCTM-1,vec2(0,choiceHelper(Screen:egpPos(EGPCTM)-EGPCTMSize/2,10):y()*10-EGPCTMSize:y()/2+5)) Screen:egpAlpha(EGPCTM-1,255)
             if(click()){appN(VarName,choiceHelper(Screen:egpPos(EGPCTM)-EGPCTMSize/2,10):y()+1) for(I=EGPCTM-Chooses:count()-2,EGPCTM){Screen:egpRemove(I)} return 1}
@@ -309,7 +319,7 @@ if(first()){#Functions
             if(!Screen:egpHasObject(egp(EGPID))){
                 appBox(EGPID,Pos,Size,vec(150)) Screen:egpAlpha(egp(EGPID),150)
                 appBox(EGPID+1,EGPID,vec2(-Size:y()/2+10,0),vec2(20,Size:y()),vec(150))}else{
-            if(appMouse()&egpInrange(egp(EGPID))){ SizeScroll=Size-vec2(10,0)
+            if(appMouse()&egpInrange(egp(EGPID))&(Size:x()/SymbolSize)<ArraySize){ SizeScroll=Size-vec2(10,0)
                 if(egpAppInrange(Pos-Size/2+vec2(10,0),Pos+Size/2-vec2(10,0))){
                     Screen:egpPos(egp(EGPID+1),vec2((CursorPos-Screen:egpPos(egp())-Pos+Size/2-vec2(Size:x()/2,0)):x(),0))
                     appN(VarName,(SizeScroll:x()/10<ArraySize)*floor((CursorPos-Pos+SizeScroll/2-Screen:egpPos(egp()))/SizeScroll*(ArraySize-SizeScroll:x()/SymbolSize)):x()) }
@@ -320,7 +330,7 @@ if(first()){#Functions
             if(!Screen:egpHasObject(egp(EGPID))){
                 appBox(EGPID,Pos,Size,vec(150)) Screen:egpAlpha(egp(EGPID),150)
                 appBox(EGPID+1,EGPID,vec2(0,-Size:y()/2+10),vec2(Size:x(),20),vec(150))}else{
-            if(appMouse()&egpInrange(egp(EGPID))){ SizeScroll=Size-vec2(0,10)
+            if(appMouse()&egpInrange(egp(EGPID))&(Size:y()/SymbolSize)<ArraySize){ SizeScroll=Size-vec2(0,10)
                 if(egpAppInrange(Pos-Size/2+vec2(0,10),Pos+Size/2-vec2(0,10))){
                     Screen:egpPos(egp(EGPID+1),vec2(0,(CursorPos-Screen:egpPos(egp())-Pos+Size/2-vec2(0,Size:y()/2)):y()))
                     appN(VarName,(SizeScroll:y()/SymbolSize<ArraySize)*floor((CursorPos-Pos+SizeScroll/2-Screen:egpPos(egp()))/SizeScroll*(ArraySize-SizeScroll:y()/SymbolSize)):y()) }
@@ -398,16 +408,16 @@ if(first()){#Functions
     #Activity
     function number activityManager(VarName:string,EGPIDStart,EGPIDEnd){
         if(!Screen:egpHasObject(egp(EGPIDStart))){appN(VarName+"Update",1)} 
-        if(appS(VarName+"Changed")!=appS(VarName)){for(I=egp(EGPIDStart),egp(EGPIDEnd)){Screen:egpRemove(I)} appN(VarName+"Update",1) appS(VarName+"Changed",appS(VarName)) return 0}
+        if(appS(VarName+"Changed")!=appS(VarName)){for(I=egp(EGPIDStart),egp(EGPIDEnd)){Screen:egpRemove(I)} appN(VarName+"Update",1) appN(VarName+"Create",1) appS(VarName+"Changed",appS(VarName)) return 0}
         return 1}
     function number activityManager(EGPIDStart,EGPIDEnd){return activityManager("Activity",EGPIDStart,EGPIDEnd)}
     function number activityManager(EGPIDStart){return activityManager("Activity",EGPIDStart,AppEGPID[ThisApp,vector2]:y())}
     
-    function number activity(VarName:string,Name:string){return Name==appS(VarName)&appS(VarName+"Changed")==appS(VarName)}
-    function number activity(Name:string){return activity("Activity",Name)}
+    function number activityGraphics(VarName:string){if(appN(VarName+"Update")){appN(VarName+"Update",0) return 1} return 0}
+    function number activityGraphics(){return activityGraphics("Activity")}
     
-    function number activityStart(VarName:string){if(appN(VarName+"Update")){appN(VarName+"Update",0) return 1} return 0}
-    function number activityStart(){return activityStart("Activity")}
+    function number activityCreate(VarName:string){if(appN(VarName+"Create")){appN(VarName+"Create",0) return 1} return 0}
+    function number activityCreate(){return activityCreate("Activity")}
     
     #App functions
     function number sysTimer(Latency){SysTimerNum++ return !mod(SysTimer+SysTimerNum,int(Latency/NowPower))}
@@ -435,10 +445,11 @@ if(first()){#Functions
         if(!ROM["System",table]["AllApps",table][AppName,vector]){ROM["System",table]["AllApps",table][AppName,vector]=Color}
         if(App[AppName,table]){
         if(AppLaunch==AppName){
-            for(I=2,AppEGPID["FreeEGP",array]:count()){ if(AppEGPID["FreeEGP",array][I,vector2]:y()>=EGPCount){
-                AppEGPID[AppName,vector2]=vec2(AppEGPID["FreeEGP",array][I,vector2]:x(),EGPCount)
-                AppEGPID["FreeEGP",array][I,vector2]=vec2(AppEGPID[AppName,vector2]:x()+EGPCount,AppEGPID["FreeEGP",array][I,vector2]:y()-EGPCount)
-                if(AppEGPID["FreeEGP",array][I,vector2]:y()==0){AppEGPID["FreeEGP",array]:remove(I)}
+            for(I=2,AppEGPID["FreeEGP",array]:count()){FreeEGPIDV2=AppEGPID["FreeEGP",array][I,vector2]
+                if(FreeEGPIDV2:y()>=EGPCount){
+                AppEGPID[AppName,vector2]=vec2(FreeEGPIDV2:x(),EGPCount)
+                FreeEGPIDV2=vec2(AppEGPID[AppName,vector2]:x()+EGPCount,FreeEGPIDV2:y()-EGPCount)
+                if(FreeEGPIDV2:y()==0){AppEGPID["FreeEGP",array]:remove(I)}
                 NoNewMemory=1 break } }
             if(!NoNewMemory){
                 AppEGPID[AppName,vector2]=vec2(AppEGPID["FreeEGP",array][1,vector2]:x(),EGPCount)
@@ -469,7 +480,7 @@ if(first()){#Functions
         if(appMouse()&(AppMove==ThisApp|WinMoveInrange)){
             Power=25 AppMove=ThisApp appN("Inrange",1) Screen:egpPos(egp(),appV2("WinMovePos")+CursorPos) }
         if(AppMove==ThisApp&!Mouse1){appV2("WinMovePos",vec2(0,Size:y()/2-7)) appV2("Pos",EGPPos) AppMove=""}}
-    return (NowPower>=100|sysTimer(100)) }
+    return (NowPower>=100|sysTimer(100))&(perf()|(AppPos[ThisApp,number]<3)) }
     return 0 }
     
     function number appEnd(){
@@ -477,7 +488,7 @@ if(first()){#Functions
         EGPIDPos=AppEGPID[ThisApp,vector2]:x()
         #close window
         if(AppClose==ThisApp){
-            SysTextEnable=0
+            SysTextEnable=0 ChangedMouse1=0
             for(I=egp(-4),egp(EGPCount)){Screen:egpRemove(I)}
             if(EGPIDPos+EGPCount+1==AppEGPID["FreeEGP",array][1,vector2]:x()){AppEGPID["FreeEGP",array][1,vector2][1]=EGPIDPos}
             else{AppEGPID["FreeEGP",array]=AppEGPID["FreeEGP",array]:add(array(AppEGPID[ThisApp,vector2]))}
@@ -487,11 +498,11 @@ if(first()){#Functions
         #update window
         if(CallAppEvent==ThisApp){for(I=egp(-4),egp(EGPCount)){Screen:egpRemove(I)} CallAppEvent="" #Screen:egpOrder(I,Screen:egpNumObjects())
         #EGP memory
-        for(I=2,AppEGPID["FreeEGP",array]:count()){
-            if(AppEGPID[ThisApp,vector2]&AppEGPID["FreeEGP",array][I,vector2]:y()>=EGPCount){
-                AppEGPID[ThisApp,vector2][1]=AppEGPID["FreeEGP",array][I,vector2]:x() 
-                AppEGPID["FreeEGP",array][I,vector2]=vec2(EGPIDPos+EGPCount,AppEGPID["FreeEGP",array][I,vector2]:y()-EGPCount)
-                if(AppEGPID["FreeEGP",array][I,vector2]:y()==0){AppEGPID["FreeEGP",array]:remove(I)} break } } }
+        for(I=2,AppEGPID["FreeEGP",array]:count()){FreeEGPIDV2=AppEGPID["FreeEGP",array][I,vector2]
+            if(AppEGPID[ThisApp,vector2]&FreeEGPIDV2:y()>=EGPCount){
+                AppEGPID[ThisApp,vector2][1]=FreeEGPIDV2:x() 
+                FreeEGPIDV2=vec2(EGPIDPos+EGPCount,FreeEGPIDV2:y()-EGPCount)
+                if(FreeEGPIDV2:y()==0){AppEGPID["FreeEGP",array]:remove(I)} break } } }
     ThisApp="" return 0 }
     function number appEndSave(){if(AppClose==ThisApp){romSaveApp(ThisApp)} return appEnd()}
     
@@ -532,7 +543,6 @@ if(first()){#Functions
     
     StartEGPID=11
     FirstFile="Windows10/Win"+entity():id():toString()+".txt"
-    fileLoad(FirstFile)
     
     #Windows logo
     Resolution=autoResolution()
@@ -544,8 +554,6 @@ if(first()){#Functions
     for(I=2,5){Screen:egpParent(I,1)}
     
     Screen:egpResolution(vec2(),Resolution) #Set resolution
-    
-    timer("FileReadError",5000) #Error notification
 }
 
 if(changed(SystemOn)&!first()){Screen:egpClear()}
@@ -562,10 +570,9 @@ if(!SystemOn){#System Off
     if(changed(Screen)){reset()}
     
     #Load ROM data
-    runOnFile(1)
-    if(fileClk()&Screen){
-        ROM=vonDecodeTable(fileRead())
-                
+    if(Screen){
+        ROM=gTable(FirstFile)
+        
         #Set default ROM
         if(ROM["Version",string]!="2.1"){
             #Standart values
@@ -581,8 +588,7 @@ if(!SystemOn){#System Off
                 ROM["Apps",table]["StartMenu",table]=table()
                 ROM["Apps",table]["StartMenu",table]["LastApps",array]=array("Settings","Diagrams","TaskM","Calculator","Clicker")
                 ROM["Apps",table]["StartMenu",table]["IconList",array]=array("Diagrams","TaskM","Calculator","Clicker")
-            romWrite()
-            runSystem(StartEGPID) appLaunch("Settings") glbS("Settings","Activity","Other") }
+            runSystem(StartEGPID) appLaunch("Settings") glbS("Settings","Activity","Files") }
         else{
         #Set saved resolution
             Resolution=ROM["System",table]["Resolution",vector2]
@@ -625,7 +631,7 @@ if(FullLoad){
             Screen:egpPos(8,vec2( 3, 3)) }else{
     
     if(appTimer(1000)){
-        if(changed(Screen:entity():getColor())&AppTimer>20){ROM["System",table]["Wallpaper",vector]=Screen:entity():getColor() romWrite()}
+        if(changed(Screen:entity():getColor())&AppTimer>20){ROM["System",table]["Wallpaper",vector]=Screen:entity():getColor()}
         if(AppEGPID["FreeEGP",array][1,vector2]:x()>AppEGPID["FreeEGP",array][1,vector2]:y()-50){print("You have less than 50 EGP ID!")}
         Screen:egpColor(1,ROM["System",table]["Wallpaper",vector]) #Wallpaper color
         Screen:egpSetText(9,date()["hour",number]:toString()+":"+date()["min",number]:toString()) #Time
@@ -645,14 +651,14 @@ if(FullLoad){
     if(StarnMenuIconInrange&click()&!glbN("StartMenu","Active")){appLaunch("StartMenu")}
     }
     
-    
     if(App["StartMenu",table]){ThisApp="StartMenu"
         #Make EGP memory
         if(AppLaunch==ThisApp){appN("EGPCount",11+romR("IconList"):count()*3) appN("Active",1) appN("Pos",20) appV2("Size",vec2(200,130+40*(romR("IconList"):count()>9)))
-            for(I=2,AppEGPID["FreeEGP",array]:count()){ if(AppEGPID["FreeEGP",array][I,vector2]:y()>=appN("EGPCount")){
-                AppEGPID[ThisApp,vector2]=vec2(AppEGPID["FreeEGP",array][I,vector2]:x(),appN("EGPCount"))
-                AppEGPID["FreeEGP",array][I,vector2]=vec2(AppEGPID[ThisApp,vector2]:x()+appN("EGPCount"),AppEGPID["FreeEGP",array][I,vector2]:y()-appN("EGPCount"))
-                if(AppEGPID["FreeEGP",array][I,vector2]:y()==0){AppEGPID["FreeEGP",array]:remove(I)}
+            for(I=2,AppEGPID["FreeEGP",array]:count()){FreeEGPIDV2=AppEGPID["FreeEGP",array][I,vector2]
+                if(FreeEGPIDV2:y()>=appN("EGPCount")){
+                AppEGPID[ThisApp,vector2]=vec2(FreeEGPIDV2:x(),appN("EGPCount"))
+                FreeEGPIDV2=vec2(AppEGPID[ThisApp,vector2]:x()+appN("EGPCount"),FreeEGPIDV2:y()-appN("EGPCount"))
+                if(FreeEGPIDV2:y()==0){AppEGPID["FreeEGP",array]:remove(I)}
                 NoNewApp=1 break } }
             if(!NoNewApp){
                 AppEGPID[ThisApp,vector2]=vec2(AppEGPID["FreeEGP",array][1,vector2]:x(),appN("EGPCount"))
@@ -686,11 +692,16 @@ if(FullLoad){
             #Graphics
             Screen:egpPos(egp(),vec2(100,appN("PosN")+Resolution:y()+77)) 
             Screen:egpAlpha(egp(),255-appN("PosN")*220/(appV2("Size"):y()/2+93)) Screen:egpAlpha(egp(5),255-appN("PosN")*255/(appV2("Size"):y()/2+93))
-            for(I=1,romR("IconList"):count()){Screen:egpAlpha(egp(8+I*3),255-appN("PosN")*255/(appV2("Size"):y()/2+93))} }
+            for(I=1,romR("IconList"):count()){Screen:egpAlpha(egp(9+I*3),255-appN("PosN")*255/(appV2("Size"):y()/2+93))} }
         
         if(!changed(appN("PosN"))&(NowPower>=100|sysTimer(100))){
             if(appMouse()&!(appN("Inrange")|CursorPos==vec2(-1))){appN("Active",0)} #Close menu if not inrange
             if(!appN("AllApps")){
+                #About user
+                StartMenuAboutEI=egpAppInrange(-appV2("Size")/2,-appV2("Size")/2+vec2(70,20))
+                if(changed(StartMenuAboutEI)){Screen:egpAlpha(egp(2),30*StartMenuAboutEI)}
+                if(StartMenuAboutEI){Screen:egpPos(egp(2),-appV2("Size")/2+vec2(37,10)) if(appClick()){DialogApp="About User" appN("Active",0)}}
+                
                 #Last apps
                 StartMenuCHLastApps=appChoiceHelper(-appV2("Size")/2+vec2(7,20),8):y()
                 StartMenuEILastApps=egpAppInrange(-appV2("Size")/2+vec2(7,30),-appV2("Size")/2+vec2(70,68))
@@ -721,7 +732,7 @@ if(FullLoad){
                     if(appFastTap()){StartMenuChoose=ROM["System",table]["AllApps",table]:keys()[StartMenuCHAllApps+appN("AAScroll"),string] appN("Active",0)}
                     if(romR("IconList"):count()<12&appLongTap()){
                         #ROM["Apps",table]["StartMenu",table]["IconList",array][romR("IconList"):count()+1,string]=ROM["System",table]["AllApps",table]:keys()[StartMenuCHAllApps,string] romWrite()
-                        romR("IconList",romR("IconList"):add(array(ROM["System",table]["AllApps",table]:keys()[StartMenuCHAllApps,string]))) romWrite()
+                        romR("IconList",romR("IconList"):add(array(ROM["System",table]["AllApps",table]:keys()[StartMenuCHAllApps,string])))
                         startMenuIcon(romR("IconList"):count())
                         AppEGPID[ThisApp,vector2][2]=11+romR("IconList"):count()*3 }
                     Screen:egpPos(egp(2),-appV2("Size")/2+vec2(37,15+8*StartMenuCHAllApps)) }
@@ -735,7 +746,7 @@ if(FullLoad){
                     if(appFastTap()){StartMenuChoose=StartMenuAppName appN("Active",0)}
                     if(appLongTap()){
                         for(G=0,2){Screen:egpRemove(egp(9+romR("IconList"):count()*3+G))}
-                        romR("IconList"):remove(I) romWrite()
+                        romR("IconList"):remove(I)
                         for(J=I,romR("IconList"):count()){startMenuIcon(J)}
                         AppEGPID[ThisApp,vector2][2]=11+romR("IconList"):count()*3 } } }
             if(StartMenuSelect){Screen:egpPos(egp(9),Screen:egpPos(StartMenuSelect))}
@@ -743,57 +754,81 @@ if(FullLoad){
         if(changed(StartMenuChoose)&StartMenuChoose){
             if(romR("LastApps"):count()>5){for(I=6,romR("LastApps"):count()){romR("LastApps"):remove(I)}}
             for(I=1,5){if(romR("LastApps")[I,string]==StartMenuChoose){romR("LastApps"):remove(I)}}
-            romR("LastApps",array(StartMenuChoose):add(romR("LastApps"))) romWrite()}
+            romR("LastApps",array(StartMenuChoose):add(romR("LastApps")))}
 }} if(appEnd()&StartMenuChoose){appLaunch(StartMenuChoose) StartMenuChoose=""}}}
 
 #System dialog window
 if(DialogApp&!App["StartMenu",table]){
     if(dialogApp("Reboot","Action",7,"Do you want to reboot system now?")){reset()}
     if(dialogApp("Shutdown","Action",6,"Do you want to shutdown system now?")){SystemOn=0}
-    if(dialogApp("FileReadError","Action",10,"Reading error! Reboot?")){reset()}
-       dialogApp("KeyboardEvent","Notify",10,"Don't use keyboard while tap to screen!")
+       dialogApp("About User","BigNotify",10,
+            "Name: "+owner():name()+
+            "\n"+owner():steamID()+
+            "\nGroup: "+owner():getUserGroup())
 }
 
 #Functions
 if(clk("CloseCTM")){for(I=0,2){Screen:egpRemove(AppEGPID["FreeEGP",array][1,vector2]:y()-I)}}
 
 #Apps
-if(appStart("Settings",vec2(300,150),vec(200),21)){ 
+if(appStart("DialogApp",vec2(250,50)+glbV2("DialogApp","AddSize"),ROM["System",table]["Theme",vector]*0.8,7)){ 
+    if(appGraphics()){appUniText(-1,appS("Text"),vec2(-115,-18),appN("TextSize"),0)
+        switch(appS("Type")){
+            case "BigNotify", appUniText(-1,appS("Text"):explode("\n"):shortArray(240/textSizeX(appN("TextSize"))),vec2(-115,-18-appV2("AddSize"):y()/2),appN("TextSize")) break
+            case "Input", SysTextEnable=egp(4) break }}else{
+    
+    switch(appS("Type")){
+        case "Notify", if(appButton(5,"OK",vec2(86,12),vec2(60,15))){appN("Answear",1)} break
+        case "Action",
+            if(appButton(1,"OK",vec2(16,12),vec2(60,15))){appN("Answear",1)}
+            if(appButton(4,"Calcel",vec2(86,12),vec2(60,15))){AppClose="DialogApp"} break
+        case "Input", 
+            if(appButton(1,"OK",vec2(86,12),vec2(60,15))){appN("Answear",1) appS("OutText",appS("Input"))}
+            if(appEditTextString(4,"Input",vec2(-40,12),160)){appN("Answear",1) appS("OutText",appS("Input"))} break
+        case "FieldNotify",
+            Screen:egpSetText(egp(-1),"")
+            appArrayFieldShort(1,"BigNotify",vec2(0,7.5),vec2(200,40+appN("TextSize")),appS("Text"):explode("\n")) break
+        }
+} if(appEnd()){DialogApp=""}}
+
+
+
+if(appStart("Settings",vec2(300,150),vec(200),27)){ 
     if(appGraphics()){
         appBox(1,vec2(40,7),vec2(220,136),vec(255))
         appBox(2,vec2(-110,7),vec2(80,136),vec(228)) }else{
     
     #Draw app
-    appChoiceMenu(3,vec2(-150,-61),"Activity",array("Wallpaper","Colors","Resolution","Other","About"))
-    if(activityManager(6)){
-        if(activity("Wallpaper")){
-            if(activityStart()){
+    appChoiceMenu(3,vec2(-150,-61),"Activity",array("Wallpaper","Colors","Resolution","Files","About"))
+    if(activityManager(6)){switch(appS("Activity")){
+        case "Wallpaper",
+            if(activityCreate()){appR("WallpaperPack",array(vec(0,140,255),vec(255,200,50),vec(0,130,65),vec(130,40,50)))}
+            if(activityGraphics()){
                 appBlackText(6,"Choose your wallpapers",vec2(-60,-50))
-                appR("WallpaperPack",array(vec(0,140,255),vec(255,200,50),vec(0,130,65),vec(130,40,50)))
                 for(I=1,4){appBox(6+I,vec2(-75+45*I,-5),vec2(40,40),appR("WallpaperPack")[I,vector])}
                 Screen:egpBox(egp(11),vec2(-30,47),vec2(40,40)) Screen:egpParent(egp(11),egp()) }else{
             Screen:egpColor(egp(11),ROM["System",table]["Wallpaper",vector])
             appN("WallpaperColorR",ROM["System",table]["Wallpaper",vector]:x()) appN("WallpaperColorG",ROM["System",table]["Wallpaper",vector]:y()) appN("WallpaperColorB",ROM["System",table]["Wallpaper",vector]:z())
-            if(appMouse()){for(I=1,4){if(egpInrange(egp(6+I))){ROM["System",table]["Wallpaper",vector]=appR("WallpaperPack")[I,vector]}} romWrite()}
+            if(appMouse()){for(I=1,4){if(egpInrange(egp(6+I))){ROM["System",table]["Wallpaper",vector]=appR("WallpaperPack")[I,vector]}}}
             if(appSliderDynamic(12,"WallpaperColorR",vec2(0,37),100,0,255)){ROM["System",table]["Wallpaper",vector][1]=appN("WallpaperColorR")}
             if(appSliderDynamic(15,"WallpaperColorG",vec2(0,47),100,0,255)){ROM["System",table]["Wallpaper",vector][2]=appN("WallpaperColorG")}
-            if(appSliderDynamic(18,"WallpaperColorB",vec2(0,57),100,0,255)){ROM["System",table]["Wallpaper",vector][3]=appN("WallpaperColorB")} }}
-        
-        if(activity("Colors")){
-            if(activityStart()){
+            if(appSliderDynamic(18,"WallpaperColorB",vec2(0,57),100,0,255)){ROM["System",table]["Wallpaper",vector][3]=appN("WallpaperColorB")} 
+        } break
+        case "Colors",
+            if(activityCreate()){appR("ThemePack",array(vec(150,0,0),vec(0,150,0),vec(50,100,255),vec(150)))}
+            if(activityGraphics()){
                 appBlackText(6,"Choose your theme color",vec2(-60,-50))
-                appR("ThemePack",array(vec(150,0,0),vec(0,150,0),vec(50,100,255),vec(150)))
                 for(I=1,4){appBox(6+I,vec2(-75+45*I,-5),vec2(40,40),appR("ThemePack")[I,vector])}
                 Screen:egpBox(egp(11),vec2(-30,47),vec2(40,40)) Screen:egpParent(egp(11),egp()) }else{
             Screen:egpColor(egp(11),ROM["System",table]["Theme",vector]) Screen:egpColor(egp(3),ROM["System",table]["Theme",vector])
             appN("ThemeColorR",ROM["System",table]["Theme",vector]:x()) appN("ThemeColorG",ROM["System",table]["Theme",vector]:y()) appN("ThemeColorB",ROM["System",table]["Theme",vector]:z())
-            if(appMouse()){for(I=1,4){if(egpInrange(egp(6+I))){ROM["System",table]["Theme",vector]=appR("ThemePack")[I,vector]}} romWrite()}
+            if(appMouse()){for(I=1,4){if(egpInrange(egp(6+I))){ROM["System",table]["Theme",vector]=appR("ThemePack")[I,vector]}}}
             if(appSliderDynamic(12,"ThemeColorR",vec2(0,37),100,0,255)){ROM["System",table]["Theme",vector][1]=appN("ThemeColorR")}
             if(appSliderDynamic(15,"ThemeColorG",vec2(0,47),100,0,255)){ROM["System",table]["Theme",vector][2]=appN("ThemeColorG")}
-            if(appSliderDynamic(18,"ThemeColorB",vec2(0,57),100,0,255)){ROM["System",table]["Theme",vector][3]=appN("ThemeColorB")} }}
-        
-        if(activity("Resolution")){
-            if(activityStart()){
+            if(appSliderDynamic(18,"ThemeColorB",vec2(0,57),100,0,255)){ROM["System",table]["Theme",vector][3]=appN("ThemeColorB")} 
+        } break
+        case "Resolution",
+            if(activityGraphics()){
                 appN("ResolutionX",ROM["System",table]["Resolution",vector2]:x()) appN("ResolutionY",ROM["System",table]["Resolution",vector2]:y()) appV2("ResolutionXY",vec2(appN("ResolutionX"),appN("ResolutionY")))
                 appBlackText(6,"Choose your resolution",vec2(-60,-50))
                 appBox(7,vec2(-50,-30)+Resolution/12,Resolution/6,ROM["System",table]["Wallpaper",vector])
@@ -805,33 +840,45 @@ if(appStart("Settings",vec2(300,150),vec(200),21)){
                 Screen:egpBox(egp(7),vec2(-50,-30)+appV2("ResolutionXY")/12,appV2("ResolutionXY")/6)
                 Screen:egpBox(egp(9),vec2(0,appV2("ResolutionXY"):y()/12-2.5),vec2(appV2("ResolutionXY"):x()/6,5))
                 Screen:egpBox(egp(10),vec2(-appV2("ResolutionXY"):x()/12+100/6,appV2("ResolutionXY"):y()/12-75/6-5),vec2(200,150)/6) }
-            if(appEditTextNumber(11,"ResolutionX",vec2(100,-20),60)){ROM["System",table]["Resolution",vector2]=appV2("ResolutionXY") romWrite()}
-            if(appEditTextNumber(14,"ResolutionY",vec2(100,  0),60)){ROM["System",table]["Resolution",vector2]=appV2("ResolutionXY") romWrite()}
-            if(appButton(17,"Reboot",vec2(115,60),vec2(50,15))){DialogApp="Settings Reboot"}  }}
-        
-        if(activity("Other")){
-            if(activityStart()){
+            if(appEditTextNumber(11,"ResolutionX",vec2(100,-20),60)){ROM["System",table]["Resolution",vector2]=appV2("ResolutionXY")}
+            if(appEditTextNumber(14,"ResolutionY",vec2(100,  0),60)){ROM["System",table]["Resolution",vector2]=appV2("ResolutionXY")}
+            if(appButton(17,"Reboot",vec2(115,60),vec2(50,15))){DialogApp="Settings Reboot"} 
+        } break
+        case "Files",
+            if(activityCreate()){fileList("Windows10/")}
+            if(activityGraphics()){
                 appBlackText(6,"Load file:",vec2(-60,-50))
-                fileList("Windows10/") appN("File",0)
                 appN("Entity",ROM["System",table]["Control",number])
-                appBlackText(7,"Your file - Win"+entity():id():toString()+".txt",vec2(150,65),10,2)
+                appBlackText(7,"Your gTable - Win"+entity():id():toString(),vec2(150,65),10,2)
                 appN("FullLoad",ROM["System",table]["FullLoad",number]) }else{
-            if(fileLoadedList()){appArrayFieldUseCTM(8,"File",vec2(-10,15),vec2(110,100),fileReadList(),array("Load","Preview"))}
-            if(appN("FileAction")==1){fileLoad("Windows10/"+fileReadList()[appN("File"),string]) appN("MakeLoad",1) appN("FileAction",0)}
-            if(appN("FileAction")==2){fileLoad("Windows10/"+fileReadList()[appN("File"),string]) appN("MakeLoad",2) appN("FileAction",0)}
-            if(appN("MakeLoad")==1&fileClk()){ROM=vonDecodeTable(fileRead()) appN("MakeLoad",0) romWrite()}
-            if(appN("MakeLoad")==2&fileClk()){appS("FilePreview",vonDecodeTable(fileRead()):toString()) DialogApp="Settings FilePreview" appN("MakeLoad",0) romWrite()}
+            if(appTimer(5000)){fileList("Windows10/") Update="Settings File"}
+            if(fileLoadedList()){appArrayFieldUseCTM(8,"File",vec2(-10,15),vec2(110,100),fileReadList(),array("Load","Save","Preview"))}
+            switch(appN("FileAction")){
+                case 1, fileLoad( "Windows10/"+fileReadList()[appN("File"),string]) appN("MakeLoad",1) break
+                case 2, fileWrite("Windows10/"+fileReadList()[appN("File"),string],vonEncode(ROM:toTable())) DialogApp="Settings Done" break
+                case 3, fileLoad( "Windows10/"+fileReadList()[appN("File"),string]) appN("MakeLoad",3) break }
+                if(appN("FileAction")){appN("FileAction",0)}
+            if(fileClk()){switch(appN("MakeLoad")){
+                case 1, VonDecodeTable=vonDecodeTable(fileRead())
+                    if(ROM["Version",number]==VonDecodeTable["Version",number]){
+                        ROM["Apps",table]=VonDecodeTable["Apps",table] 
+                        ROM["System",table]=VonDecodeTable["System",table] 
+                        Screen:egpColor(egp(3),ROM["System",table]["Theme",vector])}
+                    else{DialogApp="Settings Wrong Version"} break
+                case 3, appS("FilePreview",vonDecodeTable(fileRead()):toString()) DialogApp="Settings FilePreview" break }
+                if(appN("MakeLoad")){appN("MakeLoad",0)}}
             
-            if(appCheckBox(14,"FullLoad","FullLoad",vec2(50,-35))){ROM["System",table]["FullLoad",number]=appN("FullLoad") romWrite() DialogApp="Settings Reboot"}
-            if(appButtonToggle(18,"Entity",vec2(90,-5),vec2(80,15),array("Entity","Screem"))){if(appN("Entity")){ROM["System",table]["Control",number]=1}else{ROM["System",table]["Control",number]=0} romWrite()}
-        }}
-        
-        if(activity("About")){
-            if(activityStart()){
+            if(appCheckBox(14,"FullLoad","FullLoad",vec2(50,-35))){ROM["System",table]["FullLoad",number]=appN("FullLoad") DialogApp="Settings Reboot"}
+            if(appButtonToggle(18,"Entity",vec2(90,-5),vec2(80,15),array("Entity","Screen"))){ROM["System",table]["Control",number]=appN("Entity")}
+            if(appButton(21,"New file",vec2(90,15),vec2(80,15))){DialogApp="Settings New File"}
+            if(appButton(24,"Delete file",vec2(90,35),vec2(80,15))){DialogApp="Settings Delete File" print("C:\\Program Files\\Steam\\steamapps\\common\\GarrysMod\\garrysmod\\data\\e2files\\windows10\nOR"+"\nC:\\Program Files (x86)\\Steam\\steamapps\\common\\GarrysMod\\garrysmod\\data\\e2files\\windows10")}
+        } break
+        case "About",
+            if(activityGraphics()){
                 appBlackText(6,array(
                 "Creator: scaled.",
                 "    STEAM_0:1:52598362",
-                "Windows 10.3 beta",
+                "Windows 10.3",
                 "    Version: update 5",
                 "    API Version: "+apiVersion():toString(),
                 "    ROM Version: "+ROM["Version",string]),vec2(-60,-55),10)
@@ -842,84 +889,80 @@ if(appStart("Settings",vec2(300,150),vec(200),21)){
             Screen:egpSetText(egp(8),"Use by: "+find():name())
             Screen:egpSetText(egp(9),"Count of launched apps: "+App:count():toString())
             if(appButton(11,"Update",vec2(110,60),vec2(60,15))){DialogApp="Settings About" print("http://www.wiremod.com/forum/finished-contraptions/34849-windows-10-e2.html")}
-            if(appButton(14,"Archive",vec2(40,60),vec2(60,15))){DialogApp="Settings Archive" print("https://copy.com/0YFZjT0J8Il0XITO")} }}
-    }
+            if(appButton(14,"Archive",vec2(40,60),vec2(60,15))){DialogApp="Settings Archive" print("https://copy.com/0YFZjT0J8Il0XITO")} } break
+    }}
     if(DialogApp){
         if(dialogApp("Settings Reboot","Action",10,"You want reboot?")){reset()}
            dialogApp("Settings About","BigNotify",10,"http://www.wiremod.com/forum/finished-contraptions/34849-windows-10-e2.html")
            dialogApp("Settings Archive","BigNotify",10,"https://copy.com/0YFZjT0J8Il0XITO")
-           dialogApp("Settings FilePreview","FieldNotify",100,appS("FilePreview")) }
+           dialogApp("Settings FilePreview","FieldNotify",100,appS("FilePreview"))
+        if(dialogApp("Settings New File","Input",10,"Enter file name")){fileWrite("Windows10/"+glbS("DialogApp","OutText")+".txt",vonEncode(ROM:toTable()))}
+           dialogApp("Settings Done","Notify",10,"Operation done.")
+           dialogApp("Settings Wrong Version","Notify",10,"Wrong version!")
+           dialogApp("Settings Delete File","BigNotify",10,"File core can't delete files. You can go to C:\\Program Files\\Steam\\steamapps\\common\\GarrysMod\\garrysmod\\data\\e2files\\windows10 or same directory and delete needed files.") }
 } appEnd()}
-
-
-
-ThisApp="DialogApp"
-if(appStart("DialogApp",vec2(250,50)+appV2("AddSize"),ROM["System",table]["Theme",vector]*0.8,7)){ 
-    if(appGraphics()){appUniText(-1,appS("Text"),vec2(-115,-18),appN("TextSize"),0)
-        if(appS("Type")=="BigNotify"){appUniText(-1,appS("Text"):explode("\n"):shortArray(240/textSizeX(appN("TextSize"))),vec2(-115,-18-appV2("AddSize"):y()/2),appN("TextSize")) } }else{
-    if(appS("Type")=="Notify"){if(appButton(5,"OK",vec2(86,12),vec2(60,15))){appN("Answear",1)} }
-    if(appS("Type")=="Action"){#Action
-        if(appButton(1,"OK",vec2(16,12),vec2(60,15))){appN("Answear",1)}
-        if(appButton(4,"Calcel",vec2(86,12),vec2(60,15))){AppClose="DialogApp"} }
-    if(appS("Type")=="Input"){#Text input
-        if(appButton(1,"OK",vec2(86,12),vec2(60,15))){appN("Answear",1) appS("OutText",appS("Input")) SysTextEnable=0}
-        if(appEditTextString(4,"Input",vec2(-40,12),160)){appS("OutText",appS("Input"))} }
-    if(appS("Type")=="FieldNotify"){#Notification
-        Screen:egpSetText(egp(-1),"")
-        appArrayFieldShort(1,"BigNotify",vec2(0,7.5),vec2(200,40+appN("TextSize")),appS("Text"):explode("\n")) }
-} if(appEnd()){DialogApp=""}}
 
 
 
 if(appStart("TaskM",vec2(300,150),vec(32,64,128),11)){ 
     if(appGraphics()){Screen:egpSetText(egp(-1),"TaskManager")}else{
     appChoiceMenu(1,vec2(-150,-61),"Activity",array("Running","All Apps","Icon List","ROM","Memory","EGPID","Device"))
-    if(activityManager(4)){
-        if(activity("Running")){
+    if(activityManager(4)){switch(appS("Activity")){
+        case "Running",
             if(appTimer(1000)){Update="TaskM Running"}
-            #if(AppPos[ThisApp,number]==0){AppPos[ThisApp,number]=1}
             appArrayFieldUseCTM(4,"Running",vec2(40,4),vec2(220,130),AppPos:flip():toArray(),array("Kill","CallApp","Info"))
-            if(appN("RunningAction")==1){AppClose=AppPos:flip()[appN("Running"),string] appN("RunningAction",0)}
-            if(appN("RunningAction")==2){callApp(AppPos:flip()[appN("Running"),string]) appN("RunningAction",0)}
-            if(appN("RunningAction")==3){DialogApp="TaskM AboutApp" appS("AboutApp",AppPos:flip()[appN("Running"),string]) appN("RunningAction",0)} }
-        
-        if(activity("ROM")){
+            switch(appN("RunningAction")){
+                case 1, AppClose=AppPos:flip()[appN("Running"),string] break
+                case 2, callApp(AppPos:flip()[appN("Running"),string]) break
+                case 3, DialogApp="TaskM AboutApp" appS("AboutApp",AppPos:flip()[appN("Running"),string]) break
+            } if(appN("RunningAction")){appN("RunningAction",0)} 
+        break
+        case "ROM",
             if(appTimer(1000)){Update="TaskM ROM"}
-            appArrayField(4,"ROM",vec2(40,4),vec2(220,130),ROM:toString():explode("\n")) }
-        
-        if(activity("All Apps")){
+            appArrayField(4,"ROM",vec2(40,4),vec2(220,130),ROM:toTable():toString():explode("\n")) 
+        break
+        case "All Apps",
             appArrayFieldUseCTM(4,"AllApps",vec2(40,4),vec2(220,130),ROM["System",table]["AllApps",table]:keys(),array("Run","Info"))
-                if(appN("AllAppsAction")==1){appLaunch(ROM["System",table]["AllApps",table]:keys()[appN("AllApps"),string]) appN("AllAppsAction",0)}
-                if(appN("AllAppsAction")==2){DialogApp="TaskM AboutApp" appS("AboutApp",ROM["System",table]["AllApps",table]:keys()[appN("AllApps"),string]) appN("AllAppsAction",0)}}
-        
-        if(activity("Icon List")){
+            switch(appN("AllAppsAction")){ 
+                case 1, appLaunch(ROM["System",table]["AllApps",table]:keys()[appN("AllApps"),string]) break
+                case 2,DialogApp="TaskM AboutApp" appS("AboutApp",ROM["System",table]["AllApps",table]:keys()[appN("AllApps"),string])  break
+            } if(appN("AllAppsAction")){appN("AllAppsAction",0)} 
+        break
+        case "Icon List",
             appArrayFieldUseCTM(4,"IconList",vec2(40,4),vec2(220,130),ROM["Apps",table]["StartMenu",table]["IconList",array],array("Run","Add","Delete","Info"))
-                if(appN("IconListAction")==1){appLaunch(ROM["Apps",table]["StartMenu",table]["IconList",array][appN("IconList"),string]) appN("IconListAction",0)}
-                if(appN("IconListAction")==2){DialogApp="TaskM Icon" appN("IconListAction",0)}
-                if(appN("IconListAction")==3){ROM["Apps",table]["StartMenu",table]["IconList",array]:remove(appN("IconList")) romWrite() Update="TaskM IconList" appN("IconListAction",0)}
-                if(appN("IconListAction")==4){DialogApp="TaskM AboutApp" appS("AboutApp",ROM["Apps",table]["StartMenu",table]["IconList",array][appN("IconList"),string]) appN("IconListAction",0)}}
-        
-        if(activity("Memory")){
+            switch(appN("IconListAction")){ 
+                case 1, appLaunch(ROM["Apps",table]["StartMenu",table]["IconList",array][appN("IconList"),string]) break
+                case 2, DialogApp="TaskM Icon" break
+                case 3, ROM["Apps",table]["StartMenu",table]["IconList",array]:remove(appN("IconList")) Update="TaskM IconList" break
+                case 4, DialogApp="TaskM AboutApp" appS("AboutApp",ROM["Apps",table]["StartMenu",table]["IconList",array][appN("IconList"),string]) break
+            } if(appN("IconListAction")){appN("IconListAction",0)} 
+        break
+        case "Memory",
             if(appTimer(1000)){Update="TaskM Memory"}
-            appArrayField(4,"Memory",vec2(40,4),vec2(220,130),App:toString():explode("\n")) }
-            
-        if(activity("EGPID")){
+            appArrayField(4,"Memory",vec2(40,4),vec2(220,130),App:toString():explode("\n")) 
+        break
+        case "EGPID",
             if(appTimer(1000)){Update="TaskM EGPID"}
-            appArrayField(4,"EGPID",vec2(40,4),vec2(220,130),AppEGPID:toString():explode("\n")) }
-        
-        if(activity("Includes")){
+            appArrayField(4,"EGPID",vec2(40,4),vec2(220,130),AppEGPID:toString():explode("\n")) 
+        break
+        case "Includes",
             appArrayFieldUseCTM(4,"Includes",vec2(40,4),vec2(220,130),ROM["System",table]["Includes",array],array("Add","Delete","Inialize"))
-                if(appN("IncludesAction")==1){DialogApp="TaskM Includes" appN("IncludesAction",0)}
-                if(appN("IncludesAction")==2){ROM["System",table]["Includes",array]:remove(appN("Includes")) romWrite() Update="TaskM Includes" appN("IncludesAction",0)}
-                if(appN("IncludesAction")==3){if(!ROM["System",table]["Includes",array]){ROM["System",table]["Includes",array]=array("Windows10/Apps/YourApp") romWrite()} appN("IncludesAction",0)} }
-        
-        if(activity("Device")){
+            switch(appN("IncludesAction")){
+                case 1, DialogApp="TaskM Includes" break
+                case 2, ROM["System",table]["Includes",array]:remove(appN("Includes")) Update="TaskM Includes" break
+                case 3, if(!ROM["System",table]["Includes",array]){ROM["System",table]["Includes",array]=array("Windows10/Apps/YourApp")} break
+            } if(appN("IncludesAction")){appN("IncludesAction",0)} 
+        break
+        case "Device",
             if(appTimer(1000)){Update="TaskM Device" appR("DeviceInOut",Device:inputs():add(Device:outputs()))}
             appArrayFieldUseCTM(4,"Device",vec2(40,4),vec2(220,130),appR("DeviceInOut"),array("Set String","Set Number","Print"))
-                if(appN("DeviceAction")==1){DialogApp="TaskM SetString" appN("DeviceAction",0)}
-                if(appN("DeviceAction")==2){DialogApp="TaskM SetNumber" appN("DeviceAction",0)}
-                if(appN("DeviceAction")==3){DialogApp="TaskM Print" appN("DeviceAction",0)} }
-    }
+            switch(appN("DeviceAction")){
+                case 1, DialogApp="TaskM SetString" break
+                case 2, DialogApp="TaskM SetNumber" break
+                case 3, DialogApp="TaskM Print" break
+            } if(appN("DeviceAction")){appN("DeviceAction",0)} 
+        break
+    }}
     
     if(DialogApp){
         dialogApp("TaskM AboutApp","BigNotify",10,
@@ -928,14 +971,13 @@ if(appStart("TaskM",vec2(300,150),vec(32,64,128),11)){
             "\nROM: "+ROM["Apps",table][appS("AboutApp"),table]:count():toString()+" values"+
             "\nAppPos: "+AppPos[appS("AboutApp"),number]:toString()+
             "\nNumber of EGPIDs: "+AppEGPID[appS("AboutApp"),vector2]:y():toString())
-        if(dialogApp("TaskM Icon","Input",10,"Enter app name")){ROM["Apps",table]["StartMenu",table]["IconList",array][ROM["Apps",table]["StartMenu",table]["IconList",array]:count()+1,string]=glbS("DialogApp","OutText") romWrite() Update="TaskM IconList"}
-        if(dialogApp("TaskM Includes","Input",10,"Enter app name")){ROM["System",table]["Includes",array][ROM["System",table]["Includes",array]:count()+1,string]=glbS("DialogApp","OutText") romWrite() Update="TaskM Includes"}
+        if(dialogApp("TaskM Icon","Input",10,"Enter app name")){ROM["Apps",table]["StartMenu",table]["IconList",array][ROM["Apps",table]["StartMenu",table]["IconList",array]:count()+1,string]=glbS("DialogApp","OutText") Update="TaskM IconList"}
+        if(dialogApp("TaskM Includes","Input",10,"Enter app name")){ROM["System",table]["Includes",array][ROM["System",table]["Includes",array]:count()+1,string]=glbS("DialogApp","OutText") Update="TaskM Includes"}
         if(dialogApp("TaskM SetString","Input",10,"Enter string")){Device[appR("DeviceInOut")[appN("Device"),string],string]=glbS("DialogApp","OutText")}
         if(dialogApp("TaskM SetNumber","Input",10,"Enter number")){Device[appR("DeviceInOut")[appN("Device"),string],number]=glbS("DialogApp","OutText"):toNumber()}
            dialogApp("TaskM Print","Notify",10,Device[appR("DeviceInOut")[appN("Device"),string],string]) }
     
 } appEnd()}
-#if(ROM["System",table]["Includes",array]){for(I=1,ROM["System",table]["Includes",array]:count()){#include ROM["System",table]["Includes",array][I,string]}}
 
 
 
@@ -944,59 +986,59 @@ if(appStart("Diagrams",vec2(300,150),vec(0,128,64),16)){
     if(appGraphics()){appBox(1,vec2(40,7),vec2(220,136),vec(255))}else{
 
     #Text fields
-    appEditTextNumber(2,"Var1",vec2(100,-45),60)
-    appEditTextNumber(5,"Var2",vec2(100,-25),60)
-    appEditTextNumber(8,"Var3",vec2(100,-5),60)
+    appEditTextNumber(2,"Var1",vec2(100,-45),60) appEditTextNumber(5,"Var2",vec2(100,-25),60) appEditTextNumber(8,"Var3",vec2(100,-5),60)
     
     #Find sum
     appN("VarSum",appN("Var1")+appN("Var2")+appN("Var3"))
     #Find persents
-    appN("Var1Percent",appN("Var1")/appN("VarSum"))
-    appN("Var2Percent",appN("Var2")/appN("VarSum"))
-    appN("Var3Percent",appN("Var3")/appN("VarSum"))
+    appN("Var1Percent",appN("Var1")/appN("VarSum")) appN("Var2Percent",appN("Var2")/appN("VarSum")) appN("Var3Percent",appN("Var3")/appN("VarSum"))
     #Find max value
     appN("VarMax",max(appN("Var1Percent"),appN("Var2Percent"),appN("Var3Percent")))
     
     if(appChoiceMenu(11,vec2(-150,-60),"Mode",array("Circle","Boxes","Text"))){ #Choose mode
         #Second draw
-        Screen:egpColor(egp(2),vec(255,220,220))
-        Screen:egpColor(egp(5),vec(220,255,220))
-        Screen:egpColor(egp(8),vec(220,220,255))
+        Screen:egpColor(egp(2),vec(255,220,220)) Screen:egpColor(egp(5),vec(220,255,220)) Screen:egpColor(egp(8),vec(220,220,255))
         #Clear old objects
         for(I=egp(14),egp(16)){Screen:egpRemove(I)}
         #Draw diagram
-        if(appS("Mode")=="Circle"){
-            Screen:egpWedge(egp(14),vec2(),vec2(50)) Screen:egpColor(egp(14),vec(150)) Screen:egpColor(egp(14),vec(255,0,0)) Screen:egpSize(egp(14),0)
-            Screen:egpWedge(egp(15),vec2(),vec2(50)) Screen:egpColor(egp(15),vec(150)) Screen:egpColor(egp(15),vec(0,255,0)) Screen:egpSize(egp(15),-360*(appN("Var2Percent")+appN("Var3Percent")))
-            Screen:egpWedge(egp(16),vec2(),vec2(50)) Screen:egpColor(egp(16),vec(150)) Screen:egpColor(egp(16),vec(0,0,255)) Screen:egpSize(egp(16),-360*appN("Var3Percent")-0.1)
-            for(I=egp(14),egp(16)){Screen:egpParent(I,egp())} }
-        if(appS("Mode")=="Boxes"){
-            appBox(14,vec2(),vec2(),vec(255,0,0))
-            appBox(15,vec2(),vec2(),vec(0,255,0))
-            appBox(16,vec2(),vec2(),vec(0,0,255)) }
-        if(appS("Mode")=="Text"){
-            appBlackText(14,(int(appN("Var1Percent")*1000)/10):toString()+"%",vec2(0,-50),25,1) Screen:egpColor(egp(14),vec(255,0,0))
-            appBlackText(15,(int(appN("Var2Percent")*1000)/10):toString()+"%",vec2(0,-10),25,1) Screen:egpColor(egp(15),vec(0,255,0))
-            appBlackText(16,(int(appN("Var3Percent")*1000)/10):toString()+"%",vec2(0, 30),25,1) Screen:egpColor(egp(16),vec(0,0,255)) } 
-            appN("Update",1) }else{
+        switch(appS("Mode")){
+            case "Circle",
+                Screen:egpWedge(egp(14),vec2(),vec2(50)) Screen:egpColor(egp(14),vec(150)) Screen:egpColor(egp(14),vec(255,0,0)) Screen:egpSize(egp(14),0)
+                Screen:egpWedge(egp(15),vec2(),vec2(50)) Screen:egpColor(egp(15),vec(150)) Screen:egpColor(egp(15),vec(0,255,0)) Screen:egpSize(egp(15),-360*(appN("Var2Percent")+appN("Var3Percent")))
+                Screen:egpWedge(egp(16),vec2(),vec2(50)) Screen:egpColor(egp(16),vec(150)) Screen:egpColor(egp(16),vec(0,0,255)) Screen:egpSize(egp(16),-360*appN("Var3Percent")-0.1)
+                for(I=egp(14),egp(16)){Screen:egpParent(I,egp())} 
+            break
+            case "Boxes",
+                appBox(14,vec2(),vec2(),vec(255,0,0))
+                appBox(15,vec2(),vec2(),vec(0,255,0))
+                appBox(16,vec2(),vec2(),vec(0,0,255)) 
+            break
+            case "Text",
+                appBlackText(14,(int(appN("Var1Percent")*1000)/10):toString()+"%",vec2(0,-50),25,1) Screen:egpColor(egp(14),vec(255,0,0))
+                appBlackText(15,(int(appN("Var2Percent")*1000)/10):toString()+"%",vec2(0,-10),25,1) Screen:egpColor(egp(15),vec(0,255,0))
+                appBlackText(16,(int(appN("Var3Percent")*1000)/10):toString()+"%",vec2(0, 30),25,1) Screen:egpColor(egp(16),vec(0,0,255)) 
+            break
+            } appN("Update",1) }else{
     
     if(changed(appN("VarSum"))){appN("Update",1)}
     if(appN("Update")){appN("Update",0)
         #Third rendering
-        if(appS("Mode")=="Circle"){
-            Screen:egpSize(egp(14),0)
-            Screen:egpSize(egp(15),-360*(appN("Var2Percent")+appN("Var3Percent")))
-            Screen:egpSize(egp(16),-360*appN("Var3Percent")-0.1) }
-            
-        if(appS("Mode")=="Boxes"){
-            Screen:egpBox(egp(14),vec2(-40,60-appN("Var1Percent")/appN("VarMax")*50),vec2(30,appN("Var1Percent")/appN("VarMax")*100))
-            Screen:egpBox(egp(15),vec2(0,  60-appN("Var2Percent")/appN("VarMax")*50),vec2(30,appN("Var2Percent")/appN("VarMax")*100))
-            Screen:egpBox(egp(16),vec2(40, 60-appN("Var3Percent")/appN("VarMax")*50),vec2(30,appN("Var3Percent")/appN("VarMax")*100)) }
-            
-        if(appS("Mode")=="Text"){
-            Screen:egpSetText(egp(14),(int(appN("Var1Percent")*1000)/10):toString()+"%")
-            Screen:egpSetText(egp(15),(int(appN("Var2Percent")*1000)/10):toString()+"%")
-            Screen:egpSetText(egp(16),(int(appN("Var3Percent")*1000)/10):toString()+"%") } }
+        switch(appS("Mode")){
+            case "Circle",
+                Screen:egpSize(egp(14),0)
+                Screen:egpSize(egp(15),-360*(appN("Var2Percent")+appN("Var3Percent")))
+                Screen:egpSize(egp(16),-360*appN("Var3Percent")-0.1) 
+            break
+            case "Boxes",
+                Screen:egpBox(egp(14),vec2(-40,60-appN("Var1Percent")/appN("VarMax")*50),vec2(30,appN("Var1Percent")/appN("VarMax")*100))
+                Screen:egpBox(egp(15),vec2(0,  60-appN("Var2Percent")/appN("VarMax")*50),vec2(30,appN("Var2Percent")/appN("VarMax")*100))
+                Screen:egpBox(egp(16),vec2(40, 60-appN("Var3Percent")/appN("VarMax")*50),vec2(30,appN("Var3Percent")/appN("VarMax")*100)) 
+            break
+            case "Text",
+                Screen:egpSetText(egp(14),(int(appN("Var1Percent")*1000)/10):toString()+"%")
+                Screen:egpSetText(egp(15),(int(appN("Var2Percent")*1000)/10):toString()+"%")
+                Screen:egpSetText(egp(16),(int(appN("Var3Percent")*1000)/10):toString()+"%") 
+            break }}
 }} appEndSave()}
 
 
@@ -1004,88 +1046,74 @@ if(appStart("Diagrams",vec2(300,150),vec(0,128,64),16)){
 if(appStart("Calculator",vec2(120,160),vec(240),8)){
     if(appGraphics()){
         appBox(1,vec2(0,20),vec2(120,120),vec(220))
-        appBlackText(2,"+\n7\n4\n1",vec2(-80,-40),30,vec2(70,140),1)
-        appBlackText(3,"-\n8\n5\n2",vec2(-50,-40),30,vec2(70,140),1)
-        appBlackText(4,"*\n9\n6\n3",vec2(-20,-40),30,vec2(70,140),1)
-        appBlackText(5,"/\n←\n0\n>",vec2( 10,-40),30,vec2(70,140),1)
         appBox(6,vec2(),vec2(30),vec())
-        appBlackText(7,"4",vec2(-57,-60),20)
-        appBlackText(8,"2+2=4",vec2(-57,-65),7) }else{
+        appBlackText(7,"",vec2(-57,-60),20)
+        appBlackText(8,appS("Field2"),vec2(-57,-65),7)
+        appN("SecondRender",1) }else{
+    if(appN("SecondRender")){
+        appBlackText(2,"+\n7\n4\n1",vec2(-80,-40),30,vec2(70,140),1) appBlackText(3,"-\n8\n5\n2",vec2(-50,-40),30,vec2(70,140),1) appBlackText(4,"*\n9\n6\n3",vec2(-20,-40),30,vec2(70,140),1) appBlackText(5,"/\n<\n0\n>",vec2( 10,-40),30,vec2(70,140),1)
+        appN("SecondRender",0) }else{
         
     appV2("Choice",appChoiceHelper(vec2(-60,-40),30))
     if(inrange(appV2("Choice"),vec2(0,0),vec2(3,3))){
         Screen:egpAlpha(egp(6),180) Screen:egpPos(egp(6),appV2("Choice")*30+vec2(-45,-25))
         if(appClick()){switch(appV2("Choice")){
-            case vec2(0,1), appN("Button",7) break
-            case vec2(0,2), appN("Button",4) break
-            case vec2(0,3), appN("Button",1) break
-            case vec2(1,1), appN("Button",8) break
-            case vec2(1,2), appN("Button",5) break
-            case vec2(1,3), appN("Button",2) break
-            case vec2(2,1), appN("Button",9) break
-            case vec2(2,2), appN("Button",6) break
-            case vec2(2,3), appN("Button",3) break
-            case vec2(0,0), appS("Action","+") break
-            case vec2(1,0), appS("Action","-") break
-            case vec2(2,0), appS("Action","*") break
-            case vec2(3,0), appS("Action","/") break
-            case vec2(3,1), appN("Delete",1) break
-            case vec2(3,2), appN("Button",-1) break
-            case vec2(3,3), appN("State",3) appN("Button",0) break }}
+            case vec2(0,0), appS("Action","+") break case vec2(1,0), appS("Action","-") break case vec2(2,0), appS("Action","*") break case vec2(3,0), appS("Action","/") break
+            case vec2(0,1), appN("Button",7) break   case vec2(1,1), appN("Button",8) break   case vec2(2,1), appN("Button",9) break   case vec2(3,1), appN("Delete",1) break
+            case vec2(2,2), appN("Button",6) break   case vec2(1,2), appN("Button",5) break   case vec2(0,2), appN("Button",4) break   case vec2(3,2), appN("Button",-1) break
+            case vec2(2,3), appN("Button",3) break   case vec2(1,3), appN("Button",2) break   case vec2(0,3), appN("Button",1) break   case vec2(3,3), appN("State",3) appN("Button",0) break }}
     }else{Screen:egpAlpha(egp(6),0)}
     
-    if(appN("State")==0){
-        if(appN("Delete")){appN("N1",appN("N1"):toString():left(appN("N1"):toString():length()-1):toNumber()) appN("Delete",0)}
-        if(appN("Button")!=-1){if(changed(appN("Button"))){appN("N1",appN("N1")*10+appN("Button"))}}
-        else{appN("N1",appN("N1")*10) appN("Button",0)}
-        Screen:egpSetText(egp(7),appN("N1"):toString())
-        appS("Field2",appN("N1"):toString()) }
-    
     if(changed(appS("Action"))&appS("Action")){appN("State",1) appN("Button",0) appS("Field2",appN("N1"):toString()+appS("Action")) }
-    
-    if(appN("State")==1){
-        if(appN("Delete")){appN("N2",appN("N2"):toString():left(appN("N2"):toString():length()-1):toNumber()) appN("Delete",0)}
-        if(appN("Button")!=-1){if(changed(appN("Button"))){appN("N2",appN("N2")*10+appN("Button"))}}
-        else{appN("N2",appN("N2")*10) appN("Button",0)}
-        Screen:egpSetText(egp(7),appN("N2"):toString())
-        appS("Field2",appN("N1"):toString()+appS("Action")+appN("N2"):toString()) }
-    
-    if(appN("State")==3){
-        if(changed(appN("Button"))&appN("Button")){appN("State",0)}
-        if(appN("N1")|appN("N2")){
-            if(appS("Action")=="+"){appN("Resuilt",appN("N1")+appN("N2")) appN("N1",0) appN("N2",0)}
-            if(appS("Action")=="-"){appN("Resuilt",appN("N1")-appN("N2")) appN("N1",0) appN("N2",0)}
-            if(appS("Action")=="*"){appN("Resuilt",appN("N1")*appN("N2")) appN("N1",0) appN("N2",0)}
-            if(appS("Action")=="/"){appN("Resuilt",appN("N1")/appN("N2")) appN("N1",0) appN("N2",0)}
-            Screen:egpSetText(egp(7),appN("Resuilt"):toString())
-            appS("Field2",appS("Field2")+"="+appN("Resuilt")) } }
-    Screen:egpSetText(egp(8),appS("Field2"))
-} appEnd()}
+    switch(appN("State")){
+        case 0,
+            if(appN("Delete")){appN("N1",appN("N1"):toString():left(appN("N1"):toString():length()-1):toNumber()) appN("Delete",0)}
+            if(appN("Button")!=-1){if(changed(appN("Button"))&appN("Button")){appN("N1",appN("N1")*10+appN("Button")) appN("Button",0)}}
+            else{appN("N1",appN("N1")*10) appN("Button",0)}
+            Screen:egpSetText(egp(7),appN("N1"):toString()) appS("Field2",appN("N1"):toString()) 
+        break
+        case 1,
+            if(appN("Delete")){appN("N2",appN("N2"):toString():left(appN("N2"):toString():length()-1):toNumber()) appN("Delete",0)}
+            if(appN("Button")!=-1){if(changed(appN("Button"))&appN("Button")){appN("N2",appN("N2")*10+appN("Button")) appN("Button",0)}}
+            else{appN("N2",appN("N2")*10) appN("Button",0)}
+            Screen:egpSetText(egp(7),appN("N2"):toString()) appS("Field2",appN("N1"):toString()+appS("Action")+appN("N2"):toString()) 
+        break
+        case 3,
+            if(changed(appN("Button"))&appN("Button")){appN("State",0)}
+            if(appN("N1")|appN("N2")){switch(appS("Action")){
+                case "+", appN("Resuilt",appN("N1")+appN("N2")) break case "-", appN("Resuilt",appN("N1")-appN("N2")) break case "*", appN("Resuilt",appN("N1")*appN("N2")) break case "/", appN("Resuilt",appN("N1")/appN("N2")) break }
+                appN("N1",0) appN("N2",0) Screen:egpSetText(egp(7),appN("Resuilt"):toString()) appS("Field2",appS("Field2")+"="+appN("Resuilt")) } 
+        break
+    }
+    if(changed(appS("Field2"))){Screen:egpSetText(egp(8),appS("Field2"))}
+}} appEnd()}
 
 
 
 if(appStart("Clicker",vec2(300,150),vec(64,128,255),9)){
     if(appCreate()){
         romCreate() romLoadAppVars()
-        appR("Cost",array(100,500,2000,4500,10000,22500,65300,98000,204560,999999))
-        appR("ScopeM",array(0.2,0.5,1,2,6,16,64,128,256,-1)) }
+        appR("Cost",array(100,500,2000,4500,10000,48500,251200,980000,4045600,99999999))
+        appR("ScopeM",array(0.2,0.5,1,2,6,16,64,256,1024,-1)) }
     if(appGraphics()){
         appBox(1,vec2(-100,-50),vec2(100,20),vec(255))
         appBox(2,vec2(-100,17.5),vec2(100,115),vec())
         appBox(3,vec2(50,7),vec2(200,136),vec(64,128,255)*0.7)
         appBlackText(4,"",vec2(-145,-55))
-        Screen:egpLineStrip(egp(5),array(vec2(-50,-60),vec2(150,-60),vec2(150,-33),vec2(-50,-33),vec2(-50,-6),vec2(150,-6),vec2(150,21),vec2(-50,21),vec2(-50,48),vec2(150,48),vec2(150,75),vec2(-50,75),vec2(-50,-60),vec2(-50,75),
-        vec2(50,75),vec2(50,-60),vec2(150,-60),vec2(150,75))		) Screen:egpParent(egp(5),egp())
-        appWhiteText(6,array("Human","100\n","Mashine","2000\n","Robot","10000\n","HAAAX!","65300\n","Developer","204560"):concat("\n"),vec2(-50,-56),9,vec2(100,160),1)
-        appWhiteText(7,array("Sportsman","500\n","AK47","4500\n","Computer","22500\n","Cheat","98000\n","Buy win","999999"):concat("\n"),vec2( 50,-56),9,vec2(100,160),1)
+        Screen:egpLineStrip(egp(5),array(vec2(-50,-60),vec2(150,-60),vec2(150,-33),vec2(-50,-33),vec2(-50,-6),vec2(150,-6),vec2(150,21),vec2(-50,21),vec2(-50,48),vec2(150,48),vec2(150,75),vec2(-50,75),vec2(-50,-60),vec2(-50,75),vec2(50,75),vec2(50,-60),vec2(150,-60),vec2(150,75))) Screen:egpParent(egp(5),egp())
         appBox(8,vec2(),vec2(100,27),vec(255))
         Screen:egpCircle(egp(9),vec2(),vec2(20)) Screen:egpParent(egp(9),egp(2))
-         }else{
+        appN("SecondRender",1) }else{
+    if(appN("SecondRender")){
+        appWhiteText(6,array("Human","100\n","Mashine","2000\n","Robot","10000\n","HAAAX!","251200\n","Developer","4045600"):concat("\n"),vec2(-50,-56),9,vec2(100,160),1)
+        appWhiteText(7,array("Sportsman","500\n","AK47","4500\n","Computer","48500\n","Cheat","980000\n","Buy win","99999999"):concat("\n"),vec2( 50,-56),9,vec2(100,160),1) 
+        appN("SecondRender",0) }else{
+    appChat()
     if(egpAppInrange(vec2(-150,-40),vec2(-50,75))&appClick()){appN("Scope",appN("Scope")+1) if(appN("Size")<30){appN("Size",appN("Size")+3)}}
     appV2("Choice",appChoiceHelper(vec2(-50,-60),vec2(100,27)))
     if(inrange(appV2("Choice"),vec2(),vec2(1,4))){
         appN("ChoiceN",appV2("Choice"):x()+appV2("Choice"):y()*2+1)
-        if(appClick()&appN("Scope")>appR("Cost")[appN("ChoiceN"),number]){
+        if(appClick()&appN("Scope")>=appR("Cost")[appN("ChoiceN"),number]){
             if(appN("ChoiceN")==10){DialogApp="Clicker Win"}
             appN("MuiltiPlier",appN("MuiltiPlier")+appR("ScopeM")[appN("ChoiceN"),number])
             appN("Scope",appN("Scope")-appR("Cost")[appN("ChoiceN"),number]) }
@@ -1094,12 +1122,12 @@ if(appStart("Clicker",vec2(300,150),vec(64,128,255),9)){
     appN("Scope",appN("Scope")+appN("MuiltiPlier"))
     
     Screen:egpSetText(egp(4),int(appN("Scope")):toString())
-    Screen:egpSize(egp(9),vec2(20+appN("Size")+sin(AppTimer*appN("MuiltiPlier")^0.4)*4))
+    Screen:egpSize(egp(9),vec2(20+appN("Size")+sin(AppTimer*appN("MuiltiPlier")^0.3)*4))
     Screen:egpColor(egp(9),vec(sin(AppTimer)*127+128,sin(AppTimer+120)*127+128,sin(AppTimer+240)*127+128))
     
-    if(appTimer(1000)){appToromN("Scope") appToromN("MuiltiPlier") romWrite()}
+    if(appTimer(1000)){appToromN("Scope") appToromN("MuiltiPlier")}
     if(dialogApp("Clicker Win","Action",10,"You are winner! Try again?")){appN("Scope",0) appN("MuiltiPlier",0)}
-} appEnd()}
+}} appEnd()}
 
 
 
