@@ -1,0 +1,15 @@
+@name GPSv6
+#@model models/beer/wiremod/gps_nano.mdl
+@model models/beer/wiremod/gps.mdl
+@inputs Size Type:string Entity:entity
+@outputs [TargetPos TargetText]:array
+findInSphere(Entity:pos(),Size) findSortByDistance(Entity:pos()) if(changed(Type)){findClearWhiteClassList() findIncludeClass(Type)}
+
+for(I=1,15){
+    Distance=Entity:pos():distance(findToArray()[I,entity]:pos())
+    Angle=Entity:bearing(findToArray()[I,entity]:pos())
+    TargetPos[I,vector2]=-vec2(sin(-Angle)*Distance,cos(-Angle)*Distance)/Size*70
+    TargetText[I,string]="'"+int(Distance):toString()+"  "+findToArray()[I,entity]:name()
+    if(I>findToArray():count()){RemoveTo=I+1 break}
+}
+for(I=RemoveTo,15){TargetPos:remove(I) TargetText:remove(I)}
