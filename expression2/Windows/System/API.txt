@@ -1,0 +1,19 @@
+@name API
+#Windows 10.3 update 6
+@persist [App AppPos AppEGPID]:table AppStop [AppLaunch AppCreate AppGraphics ThisApp AppClose AppMove AppResize CallAppEvent]:string #Apps
+@persist SysTextEnable SysTextLine LongTap StartEGPID [SysText DialogApp Update StartMenuChoose ContextMenu]:string #Functions
+
+StartEGPID=11
+
+#include "Windows/API/Vars"
+#include "Windows/API/ROM"
+#include "Windows/API/Core"
+#include "Windows/API/EGP/Core"
+#include "Windows/API/EGP/Object"
+#include "Windows/API/EGP/EditText"
+#include "Windows/API/EGP/Button"
+#include "Windows/API/EGP/Slider"
+#include "Windows/API/EGP/Menu"
+#include "Windows/API/EGP/ArrayField"
+#include "Windows/API/App"
+#include "Windows/API/UserFunctions"

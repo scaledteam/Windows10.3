@@ -1,4 +1,6 @@
-#Device kit for Windows 10.3 beta update 5 test 2
+@name Device Kit 
+#Windows 10.3 update 6
+
 if(appStart("Radar",vec2(250,150),vec(0,150,150),31)){
     if(appCreate()){
         appS("Type","player") appE("Entity",entity()) appN("Size",200)
@@ -31,7 +33,7 @@ if(appStart("Chat",vec2(300,150),vec(160,50,65),22)){
         appBox(1,vec2(40,7),vec2(220,136),vec(255))
         appWhiteText(2,"Users",vec2(-110,-63),15,1)}else{
     if(appTimer(10000)){Update="Chat Users" timer("3",10000)} appArrayField(3,"Users",vec2(-110,10),vec2(80,100),Device["Users",array])
-    if(appTimer(1000)){Update="Chat Chat"} appArrayFieldShort(8,"Chat",vec2(40,-1),vec2(220,120),Device["Chat",array]) if(changed(appR("ChatArray"):count())){appN("ChatList",appR("ChatArray"):count()-12)}
+    if(appTimer(1000)){Update="Chat Chat"} appArrayFieldShort(8,"Chat",vec2(40,-1),vec2(220,120),Device["Chat",array]:concat("\n",Device["Chat",array]:count()-20,Device["Chat",array]:count()):explode("\n")) if(changed(appR("ChatArray"):count())){appN("ChatList",appR("ChatArray"):count()-12)}
     if(appEditTextString(13,"Message",vec2(10,67.5),160)){Device["Message",string]=appS("Nickname")+": "+appS("Message") appS("Message","") Screen:egpSetText(egp(40),"")}
     if(appButton(16,"Send",vec2(120,67.5),vec2(60,15),vec(160,50,65))){Device["Message",string]=appS("Nickname")+": "+appS("Message") Screen:egpSetText(egp(15),"") SysText=""}
     if(appButton(19,"Change nick",vec2(-110,67.5),vec2(80,15),vec(160,50,65))){DialogApp="Chat ChangeName"}
@@ -40,12 +42,12 @@ if(appStart("Chat",vec2(300,150),vec(160,50,65),22)){
 
 
 
-if(appStart("OSCgraph",vec2(300,150),vec(255,160,0),16)){
+if(appStart("OscilloScp",vec2(300,150),vec(255,160,0),16)){
     if(appCreate()){
         if(romCreate()){romS("ValueName","Value") romN("Length",20) romN("MaxSize",50)} romLoadAppVars()
-        OSCGValues=array()
-        for(I=1,appN("Length")+1){OSCGValues[I,vector2]=vec2((I-1)*220/appN("Length")-110,136/2/appN("MaxSize"))}
-        appR("Values",OSCGValues) }
+        local Values=array()
+        for(I=1,appN("Length")+1){Values[I,vector2]=vec2((I-1)*220/appN("Length")-110,136/2/appN("MaxSize"))}
+        appR("Values",Values) }
     if(appGraphics()){
         Screen:egpSetText(egp(-1),"Oscillograph")
         appBox(1,vec2(40,7),vec2(220,136),vec()) 
@@ -58,28 +60,17 @@ if(appStart("OSCgraph",vec2(300,150),vec(255,160,0),16)){
     appSliderStatic(9,"Length",vec2(-145,-10),50,20,100)
     appEditTextNumber(12,"MaxSize",vec2(-150+40,10),70)
     
-    OSCGValues=appR("Values")
-    if(changed(appN("Length"))){OSCGValues=array() for(I=1,appN("Length")+1){OSCGValues[I,vector2]=vec2((I-1)*220/appN("Length")-110,136/2)}}
-    for(I=1,OSCGValues:count()-1){OSCGValues[I,vector2][2]=OSCGValues[I+1,vector2]:y()}
+    local Values=appR("Values")
+    if(changed(appN("Length"))){Values=array() for(I=1,appN("Length")+1){Values[I,vector2]=vec2((I-1)*220/appN("Length")-110,136/2)}}
+    for(I=1,Values:count()-1){Values[I,vector2][2]=Values[I+1,vector2]:y()}
     if(appN("DiagPos")){
         if(abs(Device[appS("ValueName"),number])<appN("MaxSize")){
-            OSCGValues[OSCGValues:count(),vector2][2]=68*!appN("DiagPos")-Device[appS("ValueName"),number]*136/appN("MaxSize")/2}
-        else{OSCGValues[OSCGValues:count(),vector2][2]=136*(Device[appS("ValueName"),number]<0)-68} }
+            Values[Values:count(),vector2][2]=68*!appN("DiagPos")-Device[appS("ValueName"),number]*136/appN("MaxSize")/2}
+        else{Values[Values:count(),vector2][2]=136*(Device[appS("ValueName"),number]<0)-68} }
     else{
         if(appN("MaxSize")>Device[appS("ValueName"),number]&Device[appS("ValueName"),number]>=0){
-            OSCGValues[OSCGValues:count(),vector2][2]=68*!appN("DiagPos")-Device[appS("ValueName"),number]*136/appN("MaxSize")}
-        else{OSCGValues[OSCGValues:count(),vector2][2]=136*(Device[appS("ValueName"),number]<0)-68} }
-    Screen:egpLineStrip(egp(2),OSCGValues)
-    appR("Values",OSCGValues)
+            Values[Values:count(),vector2][2]=68*!appN("DiagPos")-Device[appS("ValueName"),number]*136/appN("MaxSize")}
+        else{Values[Values:count(),vector2][2]=136*(Device[appS("ValueName"),number]<0)-68} }
+    Screen:egpLineStrip(egp(2),Values)
     
 } if(appEndSave()){ROM["Apps",table]["Oscillograph",table]:remove("Values")}}
-
-
-
-#[if(appStart("Materials",vec2(250,150),vec(128,200,60),31)){
-    if(appGraphics()){
-        appBox(1,vec2(50,7),vec2(150,136),vec()) }else{
-    if(changed(Device)){Update="Materials Materials" appR("List",Device:entity():getMaterials())}
-    appArrayFieldUse(2,"Materials",vec2(-75,4),vec2(100,130),appR("List"))
-    if(changed(appN("Materials"))){Screen:egpMaterial(egp(1),appR("List"):string(appN("Materials")))}
-} appEnd()}]#

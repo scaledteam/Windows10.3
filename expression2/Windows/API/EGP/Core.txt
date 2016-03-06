@@ -1,0 +1,25 @@
+@name EGP Core
+#Windows 10.3 update 6
+
+function number egp(AppName:string){return AppEGPID[AppName,vector2]:x()}
+function number egp(AppName:string,EGPID){return AppEGPID[AppName,vector2]:x()+EGPID}
+function number egp(){return AppEGPID[ThisApp,vector2]:x()}
+function number egp(EGPID){return AppEGPID[ThisApp,vector2]:x()+EGPID}
+
+function number egpInrange(EGPID){
+    local Pos=vec2(Screen:egpGlobalPos(EGPID))
+    local Size=Screen:egpSize(EGPID)/2
+    return inrange(CursorPos,Pos-Size,Pos+Size)}
+function number egpAdvInrange(Pos1:vector2,Pos2:vector2,EGPparent){return inrange(CursorPos,Screen:egpPos(EGPparent)+Pos1,Screen:egpPos(EGPparent)+Pos2)}
+function number egpAppInrange(Pos1:vector2,Pos2:vector2){local AppPos=Screen:egpPos(egp()) return inrange(CursorPos,AppPos+Pos1,AppPos+Pos2)}
+
+function vector2 symbolSize(){return Resolution/512*vec2(0.52,1)}
+function number textSizeX(Number){local SymbolSize=symbolSize() return int(SymbolSize:x()*int(Number/SymbolSize:y())/2)*2}
+
+function vector2 choiceHelper(Pos:vector2,Step){return floor((CursorPos-Pos)/Step)}
+function vector2 appChoiceHelper(Pos:vector2,Step){return floor((CursorPos-Pos-Screen:egpPos(egp()))/Step)}
+function vector2 choiceHelper(Pos:vector2,Step:vector2){return floor((CursorPos-Pos)/Step)}
+function vector2 appChoiceHelper(Pos:vector2,Step:vector2){return floor((CursorPos-Pos-Screen:egpPos(egp()))/Step)}
+
+function vector egpUniColor(Color:vector){return vec(255)*(array(Color:x(),Color:y(),Color:z()):average()<190)}
+function vector egpUniColor(ParentID){return egpUniColor(Screen:egpColor(ParentID))}

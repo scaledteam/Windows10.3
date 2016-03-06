@@ -1,0 +1,200 @@
+@name 3DKit
+#Windows 10.3 update 6
+
+if(appStart("3Dengine",vec2(400,200),vec(100,190,50)*0.8,20)){
+    local EGP = egp()
+    if(appCreate()){
+        appN("Fov",70) appN("Speed",10) appN("Sens",15) appN("PlayerHeight",10)
+        if(!appR("Area"):count()){
+            appV("PlayerPos",vec(150,-70,0))
+            appN("PlayerAng",-60)
+            appR("Area",array(vec(-20,-20,20),vec(-20,20,20),vec(20,20,20),vec(20,-20,20),vec(-20,-20,20),vec(-20,-20,0),vec(40,-20,0),vec(40,-20,25),vec(40,20,25),vec(80,20,10),vec(80,-20,10),vec(40,-20,25)))
+        }
+    }else{
+    
+    if(appSize(3,vec2(100),vec2(400,200))&Screen:egpHasObject(EGP+1)){
+        local Size=appV2("Size")
+        Screen:egpBox(EGP+1,vec2(0,-Size:y()/4+7.5),Size*vec2(1,0.5)-vec2(0,15))
+        Screen:egpBox(EGP+2,vec2(0,Size:y()/4),Size*vec2(1,0.5))
+    }
+    
+    local Size=appV2("Size")
+    local EGPCount =  AppEGPID[ThisApp,vector2]:y()-6
+    local AreaCount = clamp(appR("Area"):count()-1,0,EGPCount)
+    
+    if(appGraphics()){
+        local Array=array() for(I=0,AreaCount-1){Array[EGP+AreaCount-I+6,number]=0} appR("Alpha",Array)
+        AppStop=App:count()
+        appBox(1,vec2(0,-Size:y()/4+7.5),Size*vec2(1,0.5)-vec2(0,15),vec(80,180,255))
+        appBox(2,vec2(0,Size:y()/4),Size*vec2(1,0.5),vec(0,180,80))
+        appN("Render3DFirst",1)
+    }elseif(appN("Render3DFirst")){
+        for(I=1,AreaCount){
+            Screen:egpPoly(EGP+I+6,vec2(),vec2(),vec2())
+            Screen:egpColor(EGP+I+6,vec(sin(90*I/AreaCount)*75+50))
+            Screen:egpParent(EGP+I+6,EGP) }
+        appN("Render3DFirst",0)
+    }else{
+    
+    #Movement
+    if(Keyboard&AppPos[ThisApp,number]==1){
+        switch(Keyboard){
+            case 19, appN("PlayerAng",appN("PlayerAng")+appN("Sens")) break #Left
+            case 20, appN("PlayerAng",appN("PlayerAng")-appN("Sens")) break #Right
+        }
+        if(appV("PlayerPos"):z()<=-0){
+            switch(Keyboard){
+                case 119, case 17, appV("PlayerVel",appV("PlayerVel")+ang(0,90-appN("PlayerAng"),0):forward()*appN("Speed")) break #Forward
+                case 115, case 18, appV("PlayerVel",appV("PlayerVel")-ang(0,90-appN("PlayerAng"),0):forward()*appN("Speed")) break #Back
+                case  97,          appV("PlayerVel",appV("PlayerVel")+ang(0,90-appN("PlayerAng"),0):right()*appN("Speed"))  break #Left
+                case 100,          appV("PlayerVel",appV("PlayerVel")-ang(0,90-appN("PlayerAng"),0):right()*appN("Speed"))  break #Right
+                case  32,          appV("PlayerVel",vec(vec2(appV("PlayerVel")),10)) break #Jump
+        }}
+    }
+    if(clk()&perf()&(AppPos[ThisApp,number]==1|appTimer(1000))){
+        #Sort distance
+        local DistSort=array()
+        local DistCache=array()
+        local Area=appR("Area")
+        
+        local Area1=Area[1,vector]
+        local Area0=vec()
+        local PlayerPos=appV("PlayerPos")
+        local DistCount=Area:count()-1
+        for(I=1,DistCount){
+            Area0=Area1
+            Area1=Area[I+1,vector]
+            DistCache[I,number]=vec2(PlayerPos):distance(vec2((Area0+Area1)/2))
+        }
+        local Dist=DistCache:clone()
+        
+        local DistMaxIndex=0
+        for(I=1,DistCount){
+            DistMaxIndex=DistCache:maxIndex()
+            DistSort[I,number]=DistMaxIndex
+            DistCache[DistMaxIndex,number]=0 }
+        
+        #Collision
+        local DistIndex=DistSort[DistCount,number]
+        Area0 = Area[DistIndex  ,vector]
+        Area1 = Area[DistIndex+1,vector]
+        
+        local PlayerVel=appV("PlayerVel")
+        if((Dist[DistIndex,number]<Area0:distance(Area1)/2+10)&(PlayerPos:z()<(Area0+Area1):z()/2)){
+            local PenpV =Area1-Area0
+            local PenpV1=PlayerPos-Area0
+            local PenpN =PenpV:cross(PenpV1):cross(PenpV):normalized()
+            if(abs(PenpV1:dot(PenpN))<25){PlayerVel+=PenpN*PlayerVel:length()*2}
+        }
+        #Update if changed count of area
+        if(changed(Area:count())){for(I=1,AreaCount){
+            if(Screen:egpHasObject(EGP+I+6)){Screen:egpAlpha(EGP+I+6,0)}
+            else{
+                Screen:egpPoly(EGP+I+6,vec2(),vec2(),vec2())
+                Screen:egpColor(EGP+I+6,vec(sin(90*I/AreaCount)*75+50))
+                Screen:egpParent(EGP+I+6,EGP)
+        }}}
+        
+        #Render parametres
+        local Matrix0=matrix(ang(appN("PlayerAng"),0,-90))
+        local Muilti=cot(appN("Fov")/2)*Size:y() 
+        local PlayerRenderPos=PlayerPos+vec(0,0,appN("PlayerHeight"))
+        
+        #Render persist
+        local Rendered = local Inrange = local EGPID = local AlphaEGP = 0
+        local ForIndex=Dist:count()+1
+        local RenderedOld=appN("rendered")
+        
+        local VectorBuffer = vec()
+        
+        local Render=array()
+        local Alpha=appR("Alpha")
+        
+        #Rendering
+        for(I=0,AreaCount-1){
+            ForIndex--
+            EGPID=EGP+AreaCount-I+6
+            AlphaEGP=Alpha[EGPID,number]
+            if(perf()){
+                Rendered++
+                DistIndex=DistSort[ForIndex,number]
+                
+                Area0 = Area[DistIndex  ,vector]
+                Area1 = Area[DistIndex+1,vector]
+                
+                if(AlphaEGP&!Area0:z()&!Area1:z()){Alpha[EGPID,number]=0 Screen:egpAlpha(EGPID,0) continue}
+                
+                Render=array(
+                    Area0-PlayerRenderPos,
+                    Area1-PlayerRenderPos,
+                    Area1*vec(1,1,0)-PlayerRenderPos,
+                    Area0*vec(1,1,0)-PlayerRenderPos)
+                
+                Inrange=0
+                foreach(I,N:vector=Render){VectorBuffer=Render[I,vector]=Matrix0*N Inrange+=(VectorBuffer:z()<0) }
+                
+                if(Inrange==4){
+                    foreach(I,N:vector=Render){Render[I,vector2]=clamp(N:dehomogenized()*Muilti,-Size/2+vec2(0,15),Size/2)}
+                    
+                    Screen:egpPoly(EGPID,Render)
+                    
+                    if(!AlphaEGP){Alpha[EGPID,number]=1 Screen:egpAlpha(EGPID,255)}
+                }elseif(AlphaEGP){Alpha[EGPID,number]=0 Screen:egpAlpha(EGPID,0)}
+                
+            }elseif(AlphaEGP&I<=RenderedOld){Alpha[EGPID,number]=0 Screen:egpAlpha(EGPID,0)}else{break}
+        }
+        appN("rendered",Rendered)
+        
+        #Player physics
+        PlayerPos+=PlayerVel appV("PlayerPos",PlayerPos)
+        if(PlayerPos:z()<=-0){
+            appV("PlayerVel",PlayerVel*vec(0.5,0.5,0)) appV("PlayerPos",vec(vec2(PlayerPos),0)) }
+        else{appV("PlayerVel",PlayerVel-vec(0,0,2))}
+    }
+}} appEnd()}
+
+
+
+
+if(appStart("LineEdit",vec2(300,150),vec(200,128,0),26)){
+    if(appCreate()){romCreate() appN("Hight",20) appN("Scale",1) appR("Resuilt",array()) appR("ResuiltHeight",array())}
+    if(appGraphics()){
+        appBox(2,vec2(40,7),vec2(220,136),vec(50))
+        appBlackText(3,"Hight of wall",vec2(-145,-63),5)
+        Screen:egpLineStrip(egp(1), appR("Resuilt"):count()<3 ? array(vec2(),vec2(),vec2()):add(appR("Resuilt")) : appR("Resuilt") ) Screen:egpParent(egp(1),egp(2))
+    }
+    
+    if(appClick()&egpInrange(egp(2))){
+        appR("Resuilt"):pushVector2(floor(CursorPos-vec2(Screen:egpGlobalPos(egp(2)))))
+        appR("ResuiltHeight"):pushNumber(appN("Hight"))
+        Screen:egpLineStrip(egp(1),appR("Resuilt")) }
+    
+    appEditTextNumber(5,"Hight",vec2(-110,-50),70)
+    
+    if(appButton(8,"New",vec2(-110,-30),vec2(70,15))){
+        appR("Resuilt",array()) appR("ResuiltHeight",array()) 
+        Screen:egpLineStrip(egp(1),array(vec2(),vec2(),vec2())) }
+    
+    if(appButton(11,"Save",vec2(-110,-10),vec2(70,15))){
+        DialogApp="LineEdit Save" }
+    
+    if(appButton(14,"Load",vec2(-110,10),vec2(70,15))){
+        DialogApp="LineEdit Load" }
+        
+    if(appButton(17,"Undo",vec2(-110,30),vec2(70,15))){
+        appR("Resuilt"):pop() appR("ResuiltHeight"):pop()
+        Screen:egpLineStrip(egp(1),appR("Resuilt")) }
+    
+    if(appButton(20,"Launch",vec2(-110,50),vec2(70,15))){
+        local Array=array() foreach(I,N:vector2=appR("Resuilt")){Array[I,vector]=vec(N,appR("ResuiltHeight")[I,number])}
+        appLaunch("3Dengine") glbR("3Dengine","Area",Array) }
+    
+    if(dialogApp("LineEdit Save","Input",10,"Enter name")){
+        local Array=array() foreach(I,N:vector2=appR("Resuilt")){Array[I,vector]=vec(N,appR("ResuiltHeight")[I,number])}
+        romR(glbS("DialogApp","OutText"),Array) }
+    
+    if(dialogApp("LineEdit Load","Choose",40,ROM["Apps",table][ThisApp,table]:keys():concat("\n"))){
+        appR("Resuilt",array()) appR("ResuiltHeight",array())
+        foreach(I,N:vector=ROM["Apps",table][ThisApp,table][glbS("DialogApp","OutText"),array]){appR("Resuilt"):pushVector2(vec2(N)) appR("ResuiltHeight"):pushNumber(N:z())}
+        Screen:egpLineStrip(egp(1),appR("Resuilt")) }
+appEnd()}

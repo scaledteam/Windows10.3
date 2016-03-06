@@ -1,0 +1,31 @@
+@name MyApps
+#Windows 10.3 update 6
+
+if(appStart("YourApp",vec2(300,150),vec(128,32,64),30)){
+    if(appGraphics()){
+        #Static objects
+        appBox(1,vec2(40,7),vec2(220,136),vec(255)) }else{
+    
+    appChoiceMenu(2,vec2(-150,-61),"Activity",array("Mode 1","Mode 2"))
+    if(activityManager(5)){switch(appS("Activity")){
+        case "Mode 1",
+            if(activityGraphics()){
+                #Graphics of 1 mode of YourApp
+                appBlackText(5,"Place for your app!",vec2(-60,-55))
+                appBlackText(6,"First mode of YourApp.",vec2(-60,-45))
+                appBlackText(7,"Ops use: "+ops():toString(),vec2(-60,-35)) }
+            #Functions of 1 mode of YourApp
+            Screen:egpSetText(egp(7),"Ops use: "+ops():toString())
+        break
+        case "Mode 2",
+            if(activityGraphics()){
+                #Graphics of 2 mode of YourApp
+                appBlackText(5,"Place for your app!",vec2(-60,-55))
+                appBlackText(6,"Second mode of YourApp.",vec2(-60,-45))
+                appBlackText(7,"Use by: "+find():name(),vec2(-60,-35)) }
+            #Functions of 2 mode of YourApp
+            Screen:egpSetText(egp(7),"Use by: "+find():name())
+        break
+    }}
+    
+} appEnd()}

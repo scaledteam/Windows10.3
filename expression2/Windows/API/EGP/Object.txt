@@ -1,0 +1,55 @@
+@name EGP Object
+#Windows 10.3 update 6
+
+function egpAdvBox(ID,ParentID,Pos:vector2,Size:vector2,Color:vector){Screen:egpBox(ID,Pos,Size) Screen:egpColor(ID,Color) Screen:egpParent(ID,ParentID) } #Cost 1 egpID.
+function appBox(EGPID,Pos:vector2,Size:vector2,Color:vector){egpAdvBox(egp(EGPID),egp(),Pos,Size,Color)} #Cost 1 egpID.
+function appBox(EGPID,ParentID,Pos:vector2,Size:vector2,Color:vector){Screen:egpBox(egp(EGPID),Pos,Size) Screen:egpColor(egp(EGPID),Color) Screen:egpParent(egp(EGPID),egp(ParentID)) } #Cost 1 egpID.
+
+function egpAdvBoxOutline(ID,ParentID,Pos:vector2,Size:vector2,Color:vector){Screen:egpBoxOutline(ID,Pos,Size) Screen:egpColor(ID,Color) Screen:egpParent(ID,ParentID) } #Cost 1 egpID.
+function appBoxOutline(EGPID,Pos:vector2,Size:vector2,Color:vector){egpAdvBoxOutline(egp(EGPID),egp(),Pos,Size,Color)} #Cost 1 egpID.
+function appBoxOutline(EGPID,ParentID,Pos:vector2,Size:vector2,Color:vector){Screen:egpBoxOutline(egp(EGPID),Pos,Size) Screen:egpColor(egp(EGPID),Color) Screen:egpParent(egp(EGPID),egp(ParentID)) } #Cost 1 egpID.
+
+function egpWhiteText(ID,   ParentID,Text:string,Pos:vector2,Size){Screen:egpText(ID,Text,Pos) Screen:egpParent(ID,ParentID) Screen:egpSize(ID,Size/symbolSize():y()) } #Cost 1 egpID.
+function appWhiteText(EGPID,         Text:string,Pos:vector2){egpWhiteText(egp(EGPID),egp(),Text,Pos,10)} #Cost 1 egpID.
+function appWhiteText(EGPID,         Text:string,Pos:vector2,Size){egpWhiteText(egp(EGPID),egp(),Text,Pos,Size)} #Cost 1 egpID.
+function egpWhiteText(ID,   ParentID,Text:string,Pos:vector2,Size,Align){egpWhiteText(ID,ParentID,Text,Pos,Size) Screen:egpAlign(ID,Align) } #Cost 1 egpID.
+function appWhiteText(EGPID,         Text:string,Pos:vector2,Size,Align){egpWhiteText(egp(EGPID),egp(),Text,Pos,Size,Align)} #Cost 1 egpID.
+function appWhiteText(EGPID,ParentID,Text:string,Pos:vector2,Size,Align){egpWhiteText(egp(EGPID),egp(ParentID),Text,Pos,Size,Align)} #Cost 1 egpID.
+function egpWhiteText(ID,   ParentID,Array:array,Pos:vector2,Size){Screen:egpTextLayout(ID,Array:concat("\n"),Pos,vec2(Resolution:x(),Array:count()*Size)) Screen:egpSize(ID,Size/symbolSize():y()) Screen:egpParent(ID,ParentID)} #Cost 1 egpID.
+function appWhiteText(EGPID,         Array:array,Pos:vector2,Size){egpWhiteText(egp(EGPID),egp(),Array,Pos,Size)} #Cost 1 egpID.
+function appWhiteText(EGPID,         Array:array,Pos:vector2){egpWhiteText(egp(EGPID),egp(),Array,Pos,10)} #Cost 1 egpID.
+function egpWhiteText(ID,   ParentID,Text:string,Pos:vector2,Size,SizeV2:vector2){Screen:egpTextLayout(ID,Text,Pos,SizeV2) Screen:egpSize(ID,Size/symbolSize():y()) Screen:egpParent(ID,ParentID)} #Cost 1 egpID.
+function appWhiteText(EGPID,         Text:string,Pos:vector2,Size,SizeV2:vector2){egpWhiteText(egp(EGPID),egp(),Text,Pos,Size,SizeV2)} #Cost 1 egpID.
+function appWhiteText(EGPID,         Text:string,Pos:vector2,SizeV2:vector2){egpWhiteText(egp(EGPID),egp(),Text,Pos,10,SizeV2)} #Cost 1 egpID.
+function egpWhiteText(ID,   ParentID,Text:string,Pos:vector2,Size,SizeV2:vector2,Align){egpWhiteText(ID,ParentID,Text,Pos,Size,SizeV2) Screen:egpAlign(ID,Align)} #Cost 1 egpID.
+function appWhiteText(EGPID,         Text:string,Pos:vector2,Size,SizeV2:vector2,Align){egpWhiteText(egp(EGPID),egp(),Text,Pos,Size,SizeV2,Align)} #Cost 1 egpID.
+
+function egpBlackText(ID,   ParentID,Text:string,Pos:vector2,Size){egpWhiteText(ID,ParentID,Text,Pos,Size) Screen:egpColor(ID,vec()) } #Cost 1 egpID.
+function appBlackText(EGPID,         Text:string,Pos:vector2){egpBlackText(egp(EGPID),egp(),Text,Pos,10)} #Cost 1 egpID.
+function appBlackText(EGPID,         Text:string,Pos:vector2,Size){egpBlackText(egp(EGPID),egp(),Text,Pos,Size)} #Cost 1 egpID.
+function egpBlackText(ID,   ParentID,Text:string,Pos:vector2,Size,Align){egpBlackText(ID,ParentID,Text,Pos,Size) Screen:egpAlign(ID,Align) } #Cost 1 egpID.
+function appBlackText(EGPID,         Text:string,Pos:vector2,Size,Align){egpBlackText(egp(EGPID),egp(),Text,Pos,Size,Align)} #Cost 1 egpID.
+function appBlackText(EGPID,ParentID,Text:string,Pos:vector2,Size,Align){egpBlackText(egp(EGPID),egp(ParentID),Text,Pos,Size,Align)} #Cost 1 egpID.
+function egpBlackText(ID,   ParentID,Array:array,Pos:vector2,Size){egpWhiteText(ID,ParentID,Array,Pos,Size) Screen:egpColor(ID,vec())} #Cost 1 egpID.
+function appBlackText(EGPID,         Array:array,Pos:vector2,Size){egpBlackText(egp(EGPID),egp(),Array,Pos,Size)} #Cost 1 egpID.
+function appBlackText(EGPID,         Array:array,Pos:vector2){egpBlackText(egp(EGPID),egp(),Array,Pos,10)} #Cost 1 egpID.
+function egpBlackText(ID,   ParentID,Text:string,Pos:vector2,Size,SizeV2:vector2){egpWhiteText(ID,ParentID,Text,Pos,Size,SizeV2) Screen:egpColor(ID,vec())} #Cost 1 egpID.
+function appBlackText(EGPID,         Text:string,Pos:vector2,Size,SizeV2:vector2){egpBlackText(egp(EGPID),egp(),Text,Pos,Size,SizeV2)} #Cost 1 egpID.
+function appBlackText(EGPID,         Text:string,Pos:vector2,SizeV2:vector2){egpBlackText(egp(EGPID),egp(),Text,Pos,10,SizeV2)} #Cost 1 egpID.
+function egpBlackText(ID,   ParentID,Text:string,Pos:vector2,Size,SizeV2:vector2,Align){egpBlackText(ID,ParentID,Text,Pos,Size,SizeV2) Screen:egpAlign(ID,Align)} #Cost 1 egpID.
+function appBlackText(EGPID,         Text:string,Pos:vector2,Size,SizeV2:vector2,Align){egpBlackText(egp(EGPID),egp(),Text,Pos,Size,SizeV2,Align)} #Cost 1 egpID.
+
+function egpUniText(ID,   ParentID,Text:string,Pos:vector2,Size){egpWhiteText(ID,ParentID,Text,Pos,Size) Screen:egpColor(ID,egpUniColor(ParentID)) } #Cost 1 egpID.
+function appUniText(EGPID,         Text:string,Pos:vector2){egpUniText(egp(EGPID),egp(),Text,Pos,10)} #Cost 1 egpID.
+function appUniText(EGPID,         Text:string,Pos:vector2,Size){egpUniText(egp(EGPID),egp(),Text,Pos,Size)} #Cost 1 egpID.
+function egpUniText(ID,   ParentID,Text:string,Pos:vector2,Size,Align){egpUniText(ID,ParentID,Text,Pos,Size) Screen:egpAlign(ID,Align) } #Cost 1 egpID.
+function appUniText(EGPID,         Text:string,Pos:vector2,Size,Align){egpUniText(egp(EGPID),egp(),Text,Pos,Size,Align)} #Cost 1 egpID.
+function appUniText(EGPID,ParentID,Text:string,Pos:vector2,Size,Align){egpUniText(egp(EGPID),egp(ParentID),Text,Pos,Size,Align)} #Cost 1 egpID.
+function egpUniText(ID,   ParentID,Array:array,Pos:vector2,Size){egpWhiteText(ID,ParentID,Array,Pos,Size) Screen:egpColor(ID,egpUniColor(ParentID))} #Cost 1 egpID.
+function appUniText(EGPID,         Array:array,Pos:vector2,Size){egpUniText(egp(EGPID),egp(),Array,Pos,Size)} #Cost 1 egpID.
+function appUniText(EGPID,         Array:array,Pos:vector2){egpUniText(egp(EGPID),egp(),Array,Pos,10)} #Cost 1 egpID.
+function egpUniText(ID,   ParentID,Text:string,Pos:vector2,Size,SizeV2:vector2){egpWhiteText(ID,ParentID,Text,Pos,Size,SizeV2) Screen:egpColor(ID,egpUniColor(ParentID))} #Cost 1 egpID.
+function appUniText(EGPID,         Text:string,Pos:vector2,Size,SizeV2:vector2){egpUniText(egp(EGPID),egp(),Text,Pos,Size,SizeV2)} #Cost 1 egpID.
+function appUniText(EGPID,         Text:string,Pos:vector2,SizeV2:vector2){egpUniText(egp(EGPID),egp(),Text,Pos,10,SizeV2)} #Cost 1 egpID.
+function egpUniText(ID,   ParentID,Text:string,Pos:vector2,Size,SizeV2:vector2,Align){egpUniText(ID,ParentID,Text,Pos,Size,SizeV2) Screen:egpAlign(ID,Align)} #Cost 1 egpID.
+function appUniText(EGPID,         Text:string,Pos:vector2,Size,SizeV2:vector2,Align){egpUniText(egp(EGPID),egp(),Text,Pos,Size,SizeV2,Align)} #Cost 1 egpID.
