@@ -43,8 +43,8 @@ if(appStart("APITest",vec2(300,150),ROM["System",table]["Theme",vector]*0.9,44))
         break
         case "Texts",
             if(activityGraphics()){
-                appUniText(4,("This is long text function (appUniText). If you have long text - use shortArray(MunberofSymbols). You can use this for arrays and strings. "+ #Cost 1 EGPID
-                "If you want make simple text, you can use appWhireText, appBlackText and appUniText. Uni - universal color."):shortArray(230/textSizeX(8)),vec2(-150+85,-60),8) 
+                appUniText(4,("This is long text function (appUniText). If you have long text - use shortArray(230/textSizeX(10)). You can use this for arrays and strings. "+ #Cost 1 EGPID
+                "If you want make simple text, you can use appWhiteText, appBlackText and appUniText. Uni - universal color."):shortArray(230/textSizeX(8)),vec2(-150+85,-60),8) 
             }
             
             #Actions of Texts page. Here place is empty, because this page have static text, and do nothink.
@@ -85,8 +85,8 @@ if(appStart("APITest",vec2(300,150),ROM["System",table]["Theme",vector]*0.9,44))
         if(dialogApp("TestApp DialogApp 1","Notify",10,"I'm dialog app!")){print("Action after press OK button")}
         if(dialogApp("TestApp DialogApp 2","Action",10,"I'm dialog app!")){print("Action of dialog app!")}
         if(dialogApp("TestApp DialogApp 3","Input",10,"I'm dialog app!")){print(glbS("DialogApp","OutText"))}
-           dialogApp("TestApp DialogApp 4","BigNotify",10,"I'm big dialog app! This is a big notyfication! If you have long message, you can use this method! If you want use array, you need toString() method of somethink same.")
-           dialogApp("TestApp DialogApp 5","FieldNotify",40,"I'm big dialog app! This is a big notyfication! If you have long message, you can use this method! If you want use array, you need toString() method of somethink same.")  }
+           dialogApp("TestApp DialogApp 4","BigNotify",10,"I'm big dialog app! This is a big notification! If you have long message, you can use this method! If you want use array, you need toString() method of somethink same.")
+           dialogApp("TestApp DialogApp 5","FieldNotify",40,"I'm big dialog app! This is a big notification! If you have long message, you can use this method! If you want use array, you need toString() method of somethink same.")  }
         if(dialogApp("TestApp DialogApp 6","Choose",10,array("Choice1","Choice2","Choice3","Choice4"):concat("\n"))){print(glbS("DialogApp","OutText"))}
     
 appEnd()}

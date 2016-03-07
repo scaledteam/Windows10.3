@@ -6,7 +6,12 @@ if(appStart("Diagrams",vec2(300,150),vec(0,128,64),16)){
     if(appGraphics()){appBox(1,vec2(40,7),vec2(220,136),vec(255))}else{
 
     #Text fields
-    appEditTextNumber(2,"Var1",vec2(100,-45),60) appEditTextNumber(5,"Var2",vec2(100,-25),60) appEditTextNumber(8,"Var3",vec2(100,-5),60)
+    appEditTextNumber(2,"Var1",vec2(100,-45),60)
+    appEditTextNumber(5,"Var2",vec2(100,-25),60)
+    appEditTextNumber(8,"Var3",vec2(100, -5),60)
+    if(appN("Var1")<0){appN("Var1",abs(appN("Var1")))}
+    if(appN("Var2")<0){appN("Var2",abs(appN("Var2")))}
+    if(appN("Var3")<0){appN("Var3",abs(appN("Var3")))}
     
     #Find sum
     appN("VarSum",appN("Var1")+appN("Var2")+appN("Var3"))
@@ -66,7 +71,7 @@ if(appStart("Diagrams",vec2(300,150),vec(0,128,64),16)){
 if(appStart("Calculator",vec2(120,160),vec(240),8)){
     if(appGraphics()){
         appBox(1,vec2(0,20),vec2(120,120),vec(220))
-        appBox(6,vec2(),vec2(30),vec())
+        appBox(6,vec2(),vec2(30),vec()) Screen:egpAlpha(egp(6),0)
         appBlackText(7,"",vec2(-57,-60),20)
         appBlackText(8,appS("Field2"),vec2(-57,-65),7)
         appN("SecondRender",1) }else{
@@ -102,7 +107,7 @@ if(appStart("Calculator",vec2(120,160),vec(240),8)){
             if(changed(appN("Button"))&appN("Button")){appN("State",0)}
             if(appN("N1")|appN("N2")){switch(appS("Action")){
                 case "+", appN("Resuilt",appN("N1")+appN("N2")) break case "-", appN("Resuilt",appN("N1")-appN("N2")) break case "*", appN("Resuilt",appN("N1")*appN("N2")) break case "/", appN("Resuilt",appN("N1")/appN("N2")) break }
-                appN("N1",0) appN("N2",0) Screen:egpSetText(egp(7),appN("Resuilt"):toString()) appS("Field2",appS("Field2")+"="+appN("Resuilt")) } 
+                appN("N1",0) appN("N2",0) appS("Action","") Screen:egpSetText(egp(7),appN("Resuilt"):toString()) appS("Field2",appS("Field2")+"="+appN("Resuilt")) } 
         break
     }
     if(changed(appS("Field2"))){Screen:egpSetText(egp(8),appS("Field2"))}

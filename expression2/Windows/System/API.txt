@@ -1,7 +1,7 @@
 @name API
 #Windows 10.3 update 6
 @persist [App AppPos AppEGPID]:table AppStop [AppLaunch AppCreate AppGraphics ThisApp AppClose AppMove AppResize CallAppEvent]:string #Apps
-@persist SysTextEnable SysTextLine LongTap StartEGPID [SysText DialogApp Update StartMenuChoose ContextMenu]:string #Functions
+@persist SysTextEnable SysTextLine SysTextEnableOld LongTap StartEGPID [SysText DialogApp Update StartMenuChoose ContextMenu]:string #Functions
 
 StartEGPID=11
 

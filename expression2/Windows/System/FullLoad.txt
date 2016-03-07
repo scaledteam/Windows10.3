@@ -6,7 +6,7 @@ if(!Screen:egpHasObject(1)){
     Screen:egpBox(2,vec2(),vec2()) Screen:egpAlpha(2,70) #Wallpaper
     Screen:egpBox(3,vec2(Resolution:x()/2,Resolution:y()-8),vec2(Resolution:x(),16)) Screen:egpColor(3,vec4(vec(20),220)) #Task bar
     #Time and Battery level
-    egpWhiteText(9,3,format("%d:%02d", date()["hour",number], date()["min",number]),vec2(Resolution:x()/2-5,-5),10,2) Screen:egpFont(9,"Courier New")
+    egpWhiteText(9,3,format("%d:%02d",time("hour"),time("min")),vec2(Resolution:x()/2-5,-5),10,2) Screen:egpFont(9,"Courier New")
     egpWhiteText(10,3,"",vec2(-Resolution:x()/2+18,-5),10) Screen:egpFont(10,"Courier New")
     #StartMenu button
     Screen:egpBox(4,vec2(8,Resolution:y()-8),vec2(16,16)) Screen:egpAlpha(4,0)
@@ -27,7 +27,7 @@ if(appTimer(1000)){
 local AppListInrange=inrange(CursorPos,vec2(16,Resolution:y()-16),Resolution-vec2(50,0))
 if(changed(AppListInrange)&!AppListInrange){Screen:egpSize(2,vec2())}
 if(AppListInrange){
-    AppListLength=0 
+    local AppListLength=0 
     local TextSize=textSizeX(10)
     for(I=1,AppPos:count()){ 
         local AppListSize=AppPos:keys()[I,string]:length()*TextSize

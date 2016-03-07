@@ -129,7 +129,7 @@ if(appStart("TicTacToe",vec2(150,165),vec(180,0,0),11)){
         App[ThisApp,table]["Matrix",matrix]=Matrix:setElement(Pos:x()+1,Pos:y()+1,-1) 
         appN("BotStep",0)
     }
-    if(dialogApp("TicTacToe NobodyWin","Notify",10,"Dead heat.")|dialogApp("TicTacToe Lose","Notify",10,"You lose this game.")|dialogApp("TicTacToe Win","Notify",10,"You win this game.")){
+    if(dialogApp("TicTacToe NobodyWin","Notify",10,"It's a Draw.")|dialogApp("TicTacToe Lose","Notify",10,"You lose this game.")|dialogApp("TicTacToe Win","Notify",10,"You win this game.")){
         for(I=0,9){Screen:egpRemove(EGP+2+I)}
         appN("Count",0)
         App[ThisApp,table]["Matrix",matrix]=matrix() }

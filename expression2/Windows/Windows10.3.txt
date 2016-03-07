@@ -30,6 +30,8 @@ if(!SystemOn){ #System On
 }else{ #System On
     NowPower=Power interval(Power) Power=100
     SysTimerNum=AppTimerNum=0 SysTimer++ AppTimer+=!mod(SysTimer,int(100/NowPower))
+    
+    if(appTimer(1000)){findUser()}
     CursorPos=Screen:egpCursor(find())
     if(!find():inVehicle()){Mouse1=find():keyUse()|find():keyPressed("e")}else{Mouse1=find():keyAttack1()} ChangedMouse1=changed(Mouse1)
     
@@ -37,11 +39,10 @@ if(!SystemOn){ #System On
         Screen:egpSaveFrame("Screen2")
         Device:egpLoadFrame("Screen2") }
     
-    if(appTimer(1000)){findUser()}
-    
     if(FullLoad){#include "Windows/System/FullLoad"}
     #include "Windows/Apps/SysApps"
     
+    #Apps. You can unable useless app kits.
     #include "Windows/Apps/ServiceKit"
     #include "Windows/Apps/Games"
     ##include "Windows/Apps/DeviceKit"
