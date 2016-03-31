@@ -2,38 +2,40 @@
 #Windows 10.3 update 6
 
 function number appScroller(EGPID,VarName:string,Pos:vector2,Size:vector2,ArraySize,FieldSize){ #Cost 2 egpID
+    FieldSize=int(FieldSize)
     if(Size:y()<Size:x()){
+        #Horizontal
         if(!Screen:egpHasObject(egp(EGPID))){
             appBox(EGPID,Pos,Size,vec(150)) Screen:egpAlpha(egp(EGPID),150)
-            appBox(EGPID+1,EGPID,vec2(-Size:y()/2+10,0),vec2(20,Size:y()),vec(150))}else{
-        if(appMouse()&egpInrange(egp(EGPID))&FieldSize<ArraySize){ SizeScroll=Size-vec2(10,0)
-            if(egpAppInrange(Pos-Size/2+vec2(10,0),Pos+Size/2-vec2(10,0))){
-                Screen:egpPos(egp(EGPID+1),vec2((CursorPos-Screen:egpPos(egp())-Pos+Size/2-vec2(Size:x()/2,0)):x(),0))
-                appN(VarName,(SizeScroll:x()/10<ArraySize)*floor((CursorPos-Pos+SizeScroll/2-Screen:egpPos(egp()))/SizeScroll*(ArraySize-FieldSize)):x()) }
-            if(egpAppInrange(Pos-Size/2,Pos-Size/2+vec2(10))){Screen:egpPos(egp(EGPID+1),vec2(-Size:x()/2+10,0)) appN(VarName,0)}
-            if(egpAppInrange(Pos+Size/2-vec2(10),Pos+Size/2)&ArraySize>FieldSize){Screen:egpPos(egp(EGPID+1),vec2(Size:x()/2-10,0)) appN(VarName,ArraySize-FieldSize)}
-        return changed(appN(VarName))} }}
-    else{
+            appBox(EGPID+1,EGPID,vec2(-Size:y()/2+10,0),vec2(20,Size:y()),vec(150)) 
+        }elseif(appMouse()&egpInrange(egp(EGPID))&FieldSize<ArraySize){
+            local SizeScroll=Size-vec2(20,0)
+            Screen:egpPos(egp(EGPID+1),vec2(clamp((CursorPos-Screen:egpPos(egp())-Pos+Size/2-vec2(Size:x()/2,0)):x(),-SizeScroll:x()/2,SizeScroll:x()/2),0))
+            appN(VarName,clamp((SizeScroll:x()/10<ArraySize)*floor((CursorPos-Pos+SizeScroll/2-Screen:egpPos(egp()))/SizeScroll*(ArraySize-FieldSize)):x(),0,ArraySize-FieldSize))
+            return 1
+        }
+    }else{
+        #Vertical
         if(!Screen:egpHasObject(egp(EGPID))){
             appBox(EGPID,Pos,Size,vec(150)) Screen:egpAlpha(egp(EGPID),150)
-            appBox(EGPID+1,EGPID,vec2(0,-Size:y()/2+10),vec2(Size:x(),20),vec(150))}else{
-        if(appMouse()&egpInrange(egp(EGPID))&FieldSize<ArraySize){ SizeScroll=Size-vec2(0,10)
-            if(egpAppInrange(Pos-Size/2+vec2(0,10),Pos+Size/2-vec2(0,10))){
-                Screen:egpPos(egp(EGPID+1),vec2(0,(CursorPos-Screen:egpPos(egp())-Pos+Size/2-vec2(0,Size:y()/2)):y()))
-                appN(VarName,(FieldSize<ArraySize)*floor((CursorPos-Pos+SizeScroll/2-Screen:egpPos(egp()))/SizeScroll*(ArraySize-FieldSize)):y()) }
-            if(egpAppInrange(Pos-Size/2,Pos-Size/2+vec2(10))){Screen:egpPos(egp(EGPID+1),vec2(0,-Size:y()/2+10)) appN(VarName,0)}
-            if(egpAppInrange(Pos+Size/2-vec2(10),Pos+Size/2)&ArraySize>FieldSize){Screen:egpPos(egp(EGPID+1),vec2(0,Size:y()/2-10)) appN(VarName,ArraySize-FieldSize)}
-        return changed(appN(VarName))} }} 
+            appBox(EGPID+1,EGPID,vec2(0,-Size:y()/2+10),vec2(Size:x(),20),vec(150)) 
+        }elseif(appMouse()&egpInrange(egp(EGPID))&FieldSize<ArraySize){
+            local SizeScroll=Size-vec2(0,20)
+            Screen:egpPos(egp(EGPID+1),vec2(0,clamp((CursorPos-Screen:egpPos(egp())-Pos+Size/2-vec2(0,Size:y()/2)):y(),-SizeScroll:y()/2,SizeScroll:y()/2)))
+            appN(VarName,clamp((FieldSize<ArraySize)*floor((CursorPos-Pos+SizeScroll/2-Screen:egpPos(egp()))/SizeScroll*(ArraySize-FieldSize)):y(),0,ArraySize-FieldSize))
+            return 1
+        }
+    }
     if(FieldSize>ArraySize&appN(VarName)!=0){appN(VarName,0)}
-return 0}
+return 0 }
 
 function number appSliderStatic(EGPID,VarName:string,Pos:vector2,Size,Min,Max){ #Cost 3 egpID
     if(!Screen:egpHasObject(egp(EGPID))){
         Screen:egpLine(egp(EGPID),Pos,Pos+vec2(Size,0)) Screen:egpColor(egp(EGPID),egpUniColor(egp())) Screen:egpSize(egp(EGPID),3) Screen:egpParent(egp(EGPID),egp())
         appBox(EGPID+1,Pos+vec2((appN(VarName)-Min)*Size/(Max-Min),0),vec2(6,8),ROM["System",table]["Theme",vector])
         appUniText(EGPID+2,appN(VarName):toString(),Pos+vec2(Size+4,-6),8) }else{
-    if(appMouse()&egpAppInrange(Pos-vec2(0,4),Pos+vec2(Size,4))){
-        appN(VarName,int((CursorPos-Screen:egpPos(egp())-Pos):x()*(Max-Min)/Size+Min))
+    if(appMouse()&egpAppInrange(Pos-vec2(2,4),Pos+vec2(Size+2,4))){
+        appN(VarName,clamp(int((CursorPos-Screen:egpPos(egp())-Pos):x()*(Max-Min)/Size+Min),Min,Max))
         Screen:egpPos(egp(EGPID+1),Pos+vec2((appN(VarName)-Min)*Size/(Max-Min),0))
         Screen:egpSetText(egp(EGPID+2),appN(VarName):toString()) return 1}} return 0}
 

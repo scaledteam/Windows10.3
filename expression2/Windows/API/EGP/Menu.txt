@@ -1,5 +1,6 @@
 @name EGP Menu
 #Windows 10.3 update 6
+@persist ContextMenu:string
 
 function number appChoiceMenu(EGPID,Pos:vector2,Color:vector,VarName:string,ChooseText:array){ #Cost 3 egpID.
     if(!Screen:egpHasObject(egp(EGPID))){
@@ -9,27 +10,34 @@ function number appChoiceMenu(EGPID,Pos:vector2,Color:vector,VarName:string,Choo
         appUniText(EGPID+1,ChooseText1:concat("\n\n\n"):explode("\n"),Pos+vec2(3,2.5),10)
         appUniText(EGPID+2,ChooseText2:concat("\n\n\n"):explode("\n"),Pos+vec2(3,17.5),10)
         if(appS(VarName)!=ChooseText[appN(VarName+"List"),string]){foreach(I,N:string=ChooseText){if(appS(VarName)==N){appN(VarName+"List",I-1) Screen:egpPos(egp(EGPID),Pos+vec2(40,7.5+appN(VarName+"List")*15)) break}}}
-        if(!appS(VarName)){appS(VarName,ChooseText[appN(VarName+"List")+1,string])} return 1 }else{
-    if(appMouse()&egpAppInrange(Pos,Pos+vec2(80,ChooseText:count()*15))){
+        if(!appS(VarName)){appS(VarName,ChooseText[appN(VarName+"List")+1,string])} return 1 
+    }
+    elseif(egpAppInrange(Pos,Pos+vec2(80,ChooseText:count()*15))&appMouse()){
         appN(VarName+"List",appChoiceHelper(Pos,15):y())
-        Screen:egpPos(egp(EGPID),Pos+vec2(40,7.5+appN(VarName+"List")*15)) 
+        Screen:egpPos(egp(EGPID),Pos+vec2(40,7.5+appN(VarName+"List")*15))
         appS(VarName,ChooseText[appN(VarName+"List")+1,string])
-        return changed(appN(VarName+"List")) } } return 0}
+        return changed(appN(VarName+"List"))
+    }
+return 0 }
 
 function number appChoiceMenu(EGPID,Pos:vector2,VarName:string,ChooseText:array){return appChoiceMenu(EGPID,Pos,ROM["System",table]["Theme",vector],VarName,ChooseText)} #Cost 3 egpID.
 
 function number appContextMenu(VarName:string,Reason,Chooses:array){ #Cost 0 egpID
     local EGP=AppEGPID["FreeEGP",array][1,vector2][2]
     local Size=vec2(80,Chooses:count()*10)
-    if(!Screen:egpHasObject(EGP)){if(Reason){ ContextMenu=ThisApp+" "+VarName
-        Screen:egpBox(EGP,CursorPos+vec2(3)+Size/2,Size) Screen:egpColor(EGP,vec(200))
+    if(Reason&!Screen:egpHasObject(EGP)){
+        ContextMenu=ThisApp+" "+VarName
+        Screen:egpBox(EGP,CursorPos+vec2(3)+Size/2,Size+vec2(6)) Screen:egpColor(EGP,vec(245))
         egpAdvBox(EGP-1,EGP,vec2(),vec2(80,10),ROM["System",table]["Theme",vector])
-        egpBlackText(EGP-2,EGP,Chooses,vec2(3,0)-Size/2,10) }}
+        egpBlackText(EGP-2,EGP,Chooses,vec2(3,0)-Size/2,10)
+        egpAdvBoxOutline(EGP-3,EGP,vec2(),Size+vec2(6),vec(215))
+    }
     elseif(ContextMenu==(ThisApp+" "+VarName)){
         if(inrange(CursorPos,Screen:egpPos(EGP)-Size/2,Screen:egpPos(EGP)+Size/2)){
             Screen:egpPos(EGP-1,vec2(0,choiceHelper(Screen:egpPos(EGP)-Size/2,10):y()*10-Size:y()/2+5)) Screen:egpAlpha(EGP-1,255)
-            if(click()){appN(VarName,choiceHelper(Screen:egpPos(EGP)-Size/2,10):y()+1)}
+            if(appClick()){appN(VarName,choiceHelper(Screen:egpPos(EGP)-Size/2,10):y()+1)}
         }else{Screen:egpAlpha(EGP-1,0)}
-        if(click()){for(I=EGP-Chooses:count()-2,EGP){Screen:egpRemove(I)} ContextMenu="" }
+        if(appClick()){for(I=EGP-3,EGP){Screen:egpRemove(I)} ContextMenu="" }
     }
+    elseif(appClick()){for(I=EGP-3,EGP){Screen:egpRemove(I)} ContextMenu="" }
 return Screen:egpHasObject(EGP) }

@@ -1,21 +1,22 @@
 @name SysApps
-#Windows 10.3 update 6
+#Windows 10.3 update 7
 
-if(appStart("DialogApp",vec2(250,50)+glbV2("DialogApp","AddSize"),ROM["System",table]["Theme",vector]*0.8,7)){ 
-    if(appGraphics()){appUniText(-1,appS("Text"),vec2(-115,-18),appN("TextSize"),0)
+if(appStart("DialogApp",vec2(250,50)+glbV2("DialogApp","AddSize"),ROM["System",table]["Theme",vector]*0.8,7)){
+    if(appGraphics()){
+        appUniText(-1,appS("Text"),vec2(-115,-18),appN("TextSize"),0)
         switch(appS("Type")){
             case "BigNotify", appUniText(-1,appS("Text"):explode("\n"):shortArray(240/textSizeX(appN("TextSize"))),vec2(-115,-18-appV2("AddSize"):y()/2),appN("TextSize")) break
-            case "Input", SysTextEnable=egp(4) break
+            case "Input", appEditTextChangeString(4,"Input") break
             case "FieldNotify", case "Choose", appUniText(-1,"DialogApp",vec2(0,-(vec2(250,50)+glbV2("DialogApp","AddSize")):y()/2+1),10,1) break }}else{
     
     switch(appS("Type")){
         case "Notify", if(appButton(5,"OK",vec2(86,12),vec2(60,15))){appN("Answear",1)} break
         case "Action",
             if(appButton(1,"OK",vec2(16,12),vec2(60,15))){appN("Answear",1)}
-            if(appButton(4,"Calcel",vec2(86,12),vec2(60,15))){AppClose="DialogApp"} break
+            if(appButton(4,"Cancel",vec2(86,12),vec2(60,15))){AppClose="DialogApp"} break
         case "Input", 
             if(appButton(1,"OK",vec2(86,12),vec2(60,15))){appN("Answear",1) appS("OutText",appS("Input"))}
-            if(appEditTextString(4,"Input",vec2(-40,12),160)){appN("Answear",1) appS("OutText",appS("Input"))} break
+            if(appEditTextString(4,"Input",vec2(-40,12),160)){appN("Answear",1) appS("OutText",appS("Input")) SysText=""} break
         case "FieldNotify",
             appArrayFieldShort(1,"BigNotify",vec2(0,7.5),vec2(200,40+appN("TextSize")),appS("Text"):explode("\n")) break
         case "Choose",
@@ -26,14 +27,12 @@ if(appStart("DialogApp",vec2(250,50)+glbV2("DialogApp","AddSize"),ROM["System",t
 
 
 
-if(appStart("Settings",vec2(300,150),vec(200),27)){ 
+if(appStart("Settings",vec2(300,150),vec(190),25)){ 
     if(appGraphics()){
-        appBox(2,vec2(-110,7),vec2(80,136),vec(228))
-        appChoiceMenu(3,vec2(-150,-61),"Activity",array("Wallpaper","Colors","Resolution","Files","About"))
-        appBox(1,vec2(40,7),vec2(220,136),vec(255)) }else{
+        appBox(2,vec2(-110,7),vec2(80,136),vec(210))
+        appBox(1,vec2(40,7),vec2(220,136),vec(230)) }else{
     
-    #Draw app
-    appChoiceMenu(3,vec2(-150,-61),"Activity",array("Wallpaper","Colors","Resolution","Files","About"))
+    appChoiceMenu(3,vec2(-150,-61),"Activity",array("Wallpaper","Colors","Resolution","Files","Other","About"))
     if(activityManager(6)){switch(appS("Activity")){
         case "Wallpaper",
             if(activityCreate()){appR("WallpaperPack",array(vec(0,140,255),vec(255,200,50),vec(0,130,65),vec(130,40,50)))}
@@ -44,7 +43,7 @@ if(appStart("Settings",vec2(300,150),vec(200),27)){
             local Wallpaper = ROM["System",table]["Wallpaper",vector]
             Screen:egpColor(egp(11),Wallpaper)
             appN("WallpaperColorR",Wallpaper:x()) appN("WallpaperColorG",Wallpaper:y()) appN("WallpaperColorB",Wallpaper:z())
-            if(appClick()){for(I=1,4){if(egpInrange(egp(6+I))){ROM["System",table]["Wallpaper",vector]=appR("WallpaperPack")[I,vector]}}}
+            if(appClick()){for(I=1,4){if(egpInrange(egp(6+I))){ROM["System",table]["Wallpaper",vector]=vec(vec4(appR("WallpaperPack")[I,vector],0))}}}
             if(appSliderDynamic(12,"WallpaperColorR",vec2(0,37),100,0,255)){ROM["System",table]["Wallpaper",vector][1]=appN("WallpaperColorR")}
             if(appSliderDynamic(15,"WallpaperColorG",vec2(0,47),100,0,255)){ROM["System",table]["Wallpaper",vector][2]=appN("WallpaperColorG")}
             if(appSliderDynamic(18,"WallpaperColorB",vec2(0,57),100,0,255)){ROM["System",table]["Wallpaper",vector][3]=appN("WallpaperColorB")} 
@@ -58,29 +57,34 @@ if(appStart("Settings",vec2(300,150),vec(200),27)){
             local Theme = ROM["System",table]["Theme",vector]
             Screen:egpColor(egp(11),Theme) Screen:egpColor(egp(3),Theme)
             appN("ThemeColorR",Theme:x()) appN("ThemeColorG",Theme:y()) appN("ThemeColorB",Theme:z())
-            if(appClick()){for(I=1,4){if(egpInrange(egp(6+I))){ROM["System",table]["Theme",vector]=appR("ThemePack")[I,vector]}}}
+            if(appClick()){for(I=1,4){if(egpInrange(egp(6+I))){ROM["System",table]["Theme",vector]=vec(vec4(appR("ThemePack")[I,vector],0))}}}
             if(appSliderDynamic(12,"ThemeColorR",vec2(0,37),100,0,255)){ROM["System",table]["Theme",vector][1]=appN("ThemeColorR")}
             if(appSliderDynamic(15,"ThemeColorG",vec2(0,47),100,0,255)){ROM["System",table]["Theme",vector][2]=appN("ThemeColorG")}
             if(appSliderDynamic(18,"ThemeColorB",vec2(0,57),100,0,255)){ROM["System",table]["Theme",vector][3]=appN("ThemeColorB")} 
         } break
         case "Resolution",
             if(activityGraphics()){
-                appN("ResolutionX",ROM["System",table]["Resolution",vector2]:x()) appN("ResolutionY",ROM["System",table]["Resolution",vector2]:y()) appV2("ResolutionXY",vec2(appN("ResolutionX"),appN("ResolutionY")))
+                appN("ResolutionX",ROM["System",table]["Resolution",vector2]:x()) 
+                appN("ResolutionY",ROM["System",table]["Resolution",vector2]:y()) 
+                appV2("ResolutionXY",vec2(appN("ResolutionX"),appN("ResolutionY")))
                 appBlackText(6,"Choose your resolution",vec2(-60,-50))
-                local ResolutionShow=clamp(Resolution,vec2(300,150),vec2(300,150)*6)
+                local ResolutionShow=clamp(Resolution,vec2(300,150),vec2(1024,512))
                 appBox(7,vec2(-50,-30)+ResolutionShow/12,ResolutionShow/6,ROM["System",table]["Wallpaper",vector])
                 appBox(8,7,vec2(),vec2(300,150)/6,vec(200))
                 appBox(9,7,vec2(0,ResolutionShow:y()/12-2.5),vec2(ResolutionShow:x()/6,5),vec(40)) Screen:egpAlpha(egp(9),220)
                 appBox(10,7,vec2(-ResolutionShow:x()/12+100/6,ResolutionShow:y()/12-65/6-5),vec2(200,130)/6,vec(60,60,60)) Screen:egpAlpha(egp(10),220)
-                appBlackText(23,"You can use 2 screens with Device input",vec2(150,69),6,2) }else{
+                appBlackText(23,"You can use 2 screens with Device input",vec2(150,69),6,2)
+            }else{
             if(changed(appN("ResolutionX")+appN("ResolutionY"))){
-                local ResolutionShow=clamp(appV2("ResolutionXY"),vec2(300,150),vec2(300,150)*6)
                 appV2("ResolutionXY",vec2(appN("ResolutionX"),appN("ResolutionY")))
+                ROM["System",table]["Resolution",vector2]=appV2("ResolutionXY")
+                local ResolutionShow=clamp(appV2("ResolutionXY"),vec2(300,150),vec2(1024,512))
                 Screen:egpBox(egp(7),vec2(-50,-30)+ResolutionShow/12,ResolutionShow/6)
                 Screen:egpBox(egp(9),vec2(0,ResolutionShow:y()/12-2.5),vec2(ResolutionShow:x()/6,5))
-                Screen:egpBox(egp(10),vec2(-ResolutionShow:x()/12+100/6,ResolutionShow:y()/12-75/6-5),vec2(200,150)/6) }
-            if(appEditTextNumber(11,"ResolutionX",vec2(100,-20),60)){ROM["System",table]["Resolution",vector2]=appV2("ResolutionXY")}
-            if(appEditTextNumber(14,"ResolutionY",vec2(100,  0),60)){ROM["System",table]["Resolution",vector2]=appV2("ResolutionXY")}
+                Screen:egpBox(egp(10),vec2(-ResolutionShow:x()/12+100/6,ResolutionShow:y()/12-75/6-5),vec2(200,150)/6)
+            }
+            appEditTextNumber(11,"ResolutionX",vec2(100,-20),60)
+            appEditTextNumber(14,"ResolutionY",vec2(100,  0),60)
             if(appButton(17,"Reboot",vec2(100,20),vec2(60,15))){DialogApp="Settings Reboot"} 
             if(appButton(20,"Auto",vec2(100,40),vec2(60,15))){
                 appV2("ResolutionXY",autoResolution())
@@ -91,54 +95,72 @@ if(appStart("Settings",vec2(300,150),vec(200),27)){
                 ROM["System",table]["Resolution",vector2]=appV2("ResolutionXY")} 
         } break
         case "Files",
-            runOnFile(1)
-            if(activityCreate()){fileList("Windows10/")}
+            if(activityCreate()){
+                fileList("Windows10/")
+                runOnFile(1)
+            }
             if(activityGraphics()){
                 appBlackText(6,"Load file:",vec2(-60,-50))
-                appN("Entity",ROM["System",table]["Control",number])
                 appBlackText(7,"Your gTable - Win"+entity():id():toString(),vec2(150,65),10,2)
-                appN("FullLoad",ROM["System",table]["FullLoad",number]) }else{
+                appBlackText(8,"File core is not loaded!",vec2(40,0),10,1)
+            }else{
             if(appTimer(5000)){fileList("Windows10/") Update="Settings File"}
-            if(fileLoadedList()){appArrayFieldUseCTM(8,"File",vec2(-10,15),vec2(110,100),fileReadList(),array("Load","Save","Preview"))}
+            if(fileLoadedList()&!fileClk()){appArrayFieldUseCTM(9,"File",vec2(40,12),vec2(200,100),fileReadList(),array("Load","Save","New","Delete","Preview"))}
             switch(appN("FileAction")){
                 case 1, fileLoad( "Windows10/"+fileReadList()[appN("File"),string]) appN("MakeLoad",1) break
                 case 2, fileWrite("Windows10/"+fileReadList()[appN("File"),string],vonEncode(ROM:toTable())) DialogApp="Settings Done" break
-                case 3, fileLoad( "Windows10/"+fileReadList()[appN("File"),string]) appN("MakeLoad",3) break }
-                if(appN("FileAction")){appN("FileAction",0)}
+                case 3, DialogApp="Settings New File" break
+                case 4, DialogApp="Settings Delete File" print("C:\\Program Files\\Steam\\steamapps\\common\\GarrysMod\\garrysmod\\data\\e2files\\windows10\nOR"+"\nC:\\Program Files (x86)\\Steam\\steamapps\\common\\GarrysMod\\garrysmod\\data\\e2files\\windows10") break
+                case 5, fileLoad( "Windows10/"+fileReadList()[appN("File"),string]) appN("MakeLoad",3) break 
+            } if(appN("FileAction")){appN("FileAction",0)}
             if(fileClk()){switch(appN("MakeLoad")){
                 case 1, local VonDecodeTable=vonDecodeTable(fileRead())
                     if(ROM["Version",number]==VonDecodeTable["Version",number]){
                         romLoad(VonDecodeTable)
                         Screen:egpColor(egp(3),ROM["System",table]["Theme",vector])
-                        ROM["System",table]["AllApps",table]=table() }
-                    else{DialogApp="Settings Wrong Version"} break
+                        Screen:egpColor(egp(9+4),ROM["System",table]["Theme",vector])
+                    }
+                    elseif(ROM["Version",number]>VonDecodeTable["Version",number]){
+                        DialogApp="Settings Old Version"
+                    }
+                    else{DialogApp="Settings Wrong Version"} 
+                break
                 case 3, appS("FilePreview",vonDecodeTable(fileRead()):toString()) DialogApp="Settings FilePreview" break }
                 if(appN("MakeLoad")){appN("MakeLoad",0)}}
-            
-            if(appCheckBox(14,"FullLoad","FullLoad",vec2(50,-35))){ROM["System",table]["FullLoad",number]=appN("FullLoad") DialogApp="Settings Reboot"}
-            if(appButtonToggle(18,"Entity",vec2(90,-5),vec2(80,15),array("Entity","Screen"))){ROM["System",table]["Control",number]=appN("Entity")}
-            if(appButton(21,"New file",vec2(90,15),vec2(80,15))){DialogApp="Settings New File"}
-            if(appButton(24,"Delete file",vec2(90,35),vec2(80,15))){DialogApp="Settings Delete File" print("C:\\Program Files\\Steam\\steamapps\\common\\GarrysMod\\garrysmod\\data\\e2files\\windows10\nOR"+"\nC:\\Program Files (x86)\\Steam\\steamapps\\common\\GarrysMod\\garrysmod\\data\\e2files\\windows10")}
+        } break
+        case "Other",
+            if(activityCreate()){foreach(I,N:string=array("FullLoad","Control","SoundEnable")){appN(N,ROM["System",table][N,number])}}
+            if(activityGraphics()){
+                appBlackText(6,"Other settings:",vec2(-60,-50))
+                appBlackText(7,"Scan entity:",vec2(-55,-35),8)
+                appBlackText(11,"FullLoad",vec2(-55,-5),8)
+                appBlackText(16,"NoFullLoad app - "+ROM["System",table]["NFLStartUp",string],vec2(-55,25),8)
+                appBlackText(20,"Sound enable:",vec2(45,-35),8)
+            }else{
+            if(appButtonToggle(8,"Control",vec2(-10,-15),vec2(80,15),array("Entity","Screen"))){ROM["System",table]["Control",number]=appN("Control")}
+            if(appCheckBox(12,"FullLoad","FullLoad",vec2(-50,5))){ROM["System",table]["FullLoad",number]=appN("FullLoad") DialogApp="Settings Reboot"}
+            if(appButton(17,"Choose",vec2(-10,45),vec2(80,15))){DialogApp="Settings NoFullLoad app"}
+            if(appCheckBox(21,"SoundEnable","Sounds",vec2(50,-25))){ROM["System",table]["SoundEnable",number]=appN("SoundEnable")}
         } break
         case "About",
             if(activityGraphics()){
                 local Date=ROM["System",table]["CreateDate",table]
-                if(!Date){Date=date()}
                 appBlackText(6,array(
-                "Windows 10.3",
-                "Version: update 6",
-                "API Version: "+apiVersion(),
-                "ROM Version: "+ROM["Version",string],
-                "ROM date: "+Date["day",number]+"."+Date["month",number]+"."+Date["year",number]
+                    "Windows 10.3",
+                    "Version: update 7",
+                    "API Version: "+apiVersion(),
+                    "ROM Version: "+ROM["Version",number],
+                    "ROM date: "+Date["day",number]+"."+Date["month",number]+"."+Date["year",number]
                 ),vec2(-60,-55),10)
                 appBlackText(7,"Ops use: "+ops(),vec2(-60,-5))
-                appBlackText(8,("Use by: "+find():name()):left(220/textSizeX(10)),vec2(-60,5)) }else{
+                appBlackText(8,("In use by: "+find():name()):left(220/textSizeX(10)),vec2(-60,5))
+            }else{
             Screen:egpSetText(egp(7),"Ops use: "+ops())
-            if(changed(find():name())){Screen:egpSetText(egp(8),("Use by: "+find():name()):left(220/textSizeX(10)))}
+            if(changed(find():name())){Screen:egpSetText(egp(8),("In use by: "+find():name()):left(220/textSizeX(10)))}
             if(appButton(11,"Update",vec2(110,60),vec2(60,15))){DialogApp="Settings About" print("http://www.wiremod.com/forum/finished-contraptions/34849-windows-10-e2.html")}
-            if(appButton(14,"Autors",vec2(40,60),vec2(60,15))){appS("Activity","Autors")} 
+            if(appButton(14,"Authors",vec2(40,60),vec2(60,15))){appS("Activity","Authors")} 
         } break
-        case "Autors",
+        case "Authors",
             if(activityGraphics()){
                 appBlackText(6,array(
                 "Main developer: scaled",
@@ -154,21 +176,42 @@ if(appStart("Settings",vec2(300,150),vec(200),27)){
         if(dialogApp("Settings Reboot","Action",10,"You want reboot?")){reset()}
            dialogApp("Settings About","BigNotify",10,"http://www.wiremod.com/forum/finished-contraptions/34849-windows-10-e2.html")
            dialogApp("Settings FilePreview","FieldNotify",100,appS("FilePreview"))
+        if(dialogApp("Settings NoFullLoad app","Choose",100,AllApps:keys():concat("\n"))){
+            ROM["System",table]["NFLStartUp",string]=glbS("DialogApp","OutText")
+            Screen:egpSetText(egp(16),"NoFullLoad app - "+ROM["System",table]["NFLStartUp",string])
+        }
         if(dialogApp("Settings New File","Input",10,"Enter file name")){fileWrite("Windows10/"+glbS("DialogApp","OutText")+".txt",vonEncode(ROM:toTable()))}
            dialogApp("Settings Done","Notify",10,"Operation done.")
            dialogApp("Settings Wrong Version","Notify",10,"Wrong version!")
+        if(dialogApp("Settings Old Version","Action",8,"Old version. Update?")){
+            romLoad(vonDecodeTable(fileRead()))
+            reset()
+        }
            dialogApp("Settings Delete File","BigNotify",10,"File core can't delete files. You can go to C:\\Program Files\\Steam\\steamapps\\common\\GarrysMod\\garrysmod\\data\\e2files\\windows10 or same directory and delete needed files.") }
 } appEnd()}
 
 
 
-if(appStart("TaskM",vec2(300,150),vec(32,64,128),11)){ 
-    if(appGraphics()){Screen:egpSetText(egp(-1),"TaskManager")}else{
-    appChoiceMenu(1,vec2(-150,-61),"Activity",array("Running","All Apps","ROM","Memory","EGPID","Device"))
+if(appStart("TaskM",vec2(300,150),vec(32,64,128),13)){ 
+    if(appGraphics()){Screen:egpSetText(egp(-1),"TaskManager") }else{
+    
+    if(appSize(11,vec2(200,120),vec2(300,150),vec())){
+        Screen:egpRemove(egp(1))
+        Screen:egpRemove(egp(4))
+        Screen:egpRemove(egp(4+2))
+    }
+    local Size = appV2("Size")
+    local FieldSize = Size-vec2(80,15)
+    appChoiceMenu(1,vec2(-Size:x()/2,-Size:y()/2+15),"Activity",array("Running","All Apps","ROM","Memory","EGPID","Device"))
     if(activityManager(4)){switch(appS("Activity")){
         case "Running",
-            if(appTimer(1000)){Update="TaskM Running"}
-            appArrayFieldUseCTM(4,"Running",vec2(40,4),vec2(220,130),AppPos:flip():toArray(),array("Kill","Call App","Set 0 pos","Info"))
+            if(appTimer(1000)){
+                local Array = array()
+                foreach(I,N:string=AppPos:flip():toArray()){Array[I,string]=(N+" - "+glbN(N,"Opcounter")+" opcount"):left(FieldSize:x()/textSizeX(10))}
+                appR("RunningShow",Array)
+                Update="TaskM Running"
+            }
+            appArrayFieldUseCTM(4,"Running",vec2(40,7.5),FieldSize,appR("RunningShow"),array("Close","Call App","Set 0 pos","Info"))
             switch(appN("RunningAction")){
                 case 1, AppClose=AppPos:flip()[appN("Running"),string] break
                 case 2, callApp(AppPos:flip()[appN("Running"),string]) break
@@ -178,25 +221,25 @@ if(appStart("TaskM",vec2(300,150),vec(32,64,128),11)){
         break
         case "ROM",
             if(appTimer(1000)){Update="TaskM ROM"}
-            appArrayField(4,"ROM",vec2(40,4),vec2(220,130),ROM:toTable():toString():explode("\n")) 
+            appArrayFieldCut(4,"ROM",vec2(40,7.5),FieldSize,ROM:toTable():toString():explode("\n")) 
         break
         case "All Apps",
-            appArrayFieldUseCTM(4,"AllApps",vec2(40,4),vec2(220,130),ROM["System",table]["AllApps",table]:keys(),array("Run","Info"))
+            appArrayFieldUseCTM(4,"AllApps",vec2(40,7.5),FieldSize,AllApps:keys(),array("Run","Info"))
             switch(appN("AllAppsAction")){ 
-                case 1, appLaunch(ROM["System",table]["AllApps",table]:keys()[appN("AllApps"),string]) break
-                case 2,DialogApp="TaskM AboutApp" appS("AboutApp",ROM["System",table]["AllApps",table]:keys()[appN("AllApps"),string])  break
+                case 1, appLaunch(AllApps:keys()[appN("AllApps"),string]) break
+                case 2,DialogApp="TaskM AboutApp" appS("AboutApp",AllApps:keys()[appN("AllApps"),string])  break
             } if(appN("AllAppsAction")){appN("AllAppsAction",0)} 
         break
         case "Memory",
             if(appTimer(1000)){Update="TaskM Memory"}
-            appArrayField(4,"Memory",vec2(40,4),vec2(220,130),App:toString():explode("\n")) 
+            appArrayFieldCut(4,"Memory",vec2(40,7.5),FieldSize,App:toString():explode("\n")) 
         break
         case "EGPID",
             if(appTimer(1000)){Update="TaskM EGPID"}
-            appArrayField(4,"EGPID",vec2(40,4),vec2(220,130),AppEGPID:toString():explode("\n")) 
+            appArrayFieldCut(4,"EGPID",vec2(40,7.5),FieldSize,AppEGPID:toString():explode("\n")) 
         break
         case "Includes",
-            appArrayFieldUseCTM(4,"Includes",vec2(40,4),vec2(220,130),ROM["System",table]["Includes",array],array("Add","Delete","Inialize"))
+            appArrayFieldUseCTM(4,"Includes",vec2(40,7.5),FieldSize,ROM["System",table]["Includes",array],array("Add","Delete","Inialize"))
             switch(appN("IncludesAction")){
                 case 1, DialogApp="TaskM Includes" break
                 case 2, ROM["System",table]["Includes",array]:remove(appN("Includes")) Update="TaskM Includes" break
@@ -205,7 +248,7 @@ if(appStart("TaskM",vec2(300,150),vec(32,64,128),11)){
         break
         case "Device",
             if(appTimer(1000)){Update="TaskM Device" appR("DeviceInOut",Device:inputs():add(Device:outputs()))}
-            appArrayFieldUseCTM(4,"Device",vec2(40,4),vec2(220,130),appR("DeviceInOut"),array("Set String","Set Number","Print"))
+            appArrayFieldUseCTM(4,"Device",vec2(40,7.5),FieldSize,appR("DeviceInOut"),array("Set String","Set Number","Print"))
             switch(appN("DeviceAction")){
                 case 1, DialogApp="TaskM SetString" break
                 case 2, DialogApp="TaskM SetNumber" break
@@ -225,6 +268,6 @@ if(appStart("TaskM",vec2(300,150),vec(32,64,128),11)){
         if(dialogApp("TaskM Includes","Input",10,"Enter app name")){ROM["System",table]["Includes",array][ROM["System",table]["Includes",array]:count()+1,string]=glbS("DialogApp","OutText") Update="TaskM Includes"}
         if(dialogApp("TaskM SetString","Input",10,"Enter string")){Device[appR("DeviceInOut")[appN("Device"),string],string]=glbS("DialogApp","OutText")}
         if(dialogApp("TaskM SetNumber","Input",10,"Enter number")){Device[appR("DeviceInOut")[appN("Device"),string],number]=glbS("DialogApp","OutText"):toNumber()}
-           dialogApp("TaskM Print","Notify",10,Device[appR("DeviceInOut")[appN("Device"),string],string]) }
+           dialogApp("TaskM Print","BigNotify",10,Device[appR("DeviceInOut")[appN("Device"),string],string]) }
     
 } appEnd()}

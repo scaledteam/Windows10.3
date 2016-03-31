@@ -1,0 +1,18 @@
+@name First
+#Windows 10.3 update 7
+@persist SystemOn Resolution:vector2 #System
+@persist ROM:gtable FullLoad #ROM
+
+findIncludeClass("player") findUser()
+timer("SystemOn",1000)
+
+#Windows logo 
+Resolution=autoResolution()
+Screen:egpClear()
+Screen:egpBox(1,Resolution/2,Resolution) Screen:egpColor(1,vec())
+Screen:egpPoly(2,vec2(-40,32),vec2(-40,-32),vec2(46,-44),vec2(46,44)) Screen:egpColor(2,vec(0,220,255))
+Screen:egpBox(3,vec2(),vec2(100,4)) Screen:egpColor(3,vec())
+Screen:egpBox(4,vec2(),vec2(4,100)) Screen:egpColor(4,vec())
+for(I=2,5){Screen:egpParent(I,1)}
+#Set resolution
+Screen:egpResolution(vec2(),Resolution)

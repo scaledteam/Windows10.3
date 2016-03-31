@@ -1,47 +1,54 @@
 @name FullLoad
-#Windows 10.3 update 6
+#Windows 10.3 update 7
+@persist StartMenuChoose:string
 
 if(!Screen:egpHasObject(1)){
     Screen:egpBox(1,Resolution/2,Resolution) Screen:egpColor(1,ROM["System",table]["Wallpaper",vector]) #Wallpaper
-    Screen:egpBox(2,vec2(),vec2()) Screen:egpAlpha(2,70) #Wallpaper
+    Screen:egpBox(2,vec2(),vec2()) Screen:egpAlpha(2,120) #Wallpaper
     Screen:egpBox(3,vec2(Resolution:x()/2,Resolution:y()-8),vec2(Resolution:x(),16)) Screen:egpColor(3,vec4(vec(20),220)) #Task bar
+    
     #Time and Battery level
     egpWhiteText(9,3,format("%d:%02d",time("hour"),time("min")),vec2(Resolution:x()/2-5,-5),10,2) Screen:egpFont(9,"Courier New")
     egpWhiteText(10,3,"",vec2(-Resolution:x()/2+18,-5),10) Screen:egpFont(10,"Courier New")
+    
     #StartMenu button
     Screen:egpBox(4,vec2(8,Resolution:y()-8),vec2(16,16)) Screen:egpAlpha(4,0)
     for(I=5,8){Screen:egpBox(I,vec2(),vec2(6,6)) Screen:egpParent(I,4)}
         Screen:egpPos(5,vec2(-4,-4))
         Screen:egpPos(6,vec2(-4, 3))
         Screen:egpPos(7,vec2( 3,-4))
-        Screen:egpPos(8,vec2( 3, 3)) }else{
-
-if(appTimer(1000)){
-    if(changed(Screen:entity():getColor())&AppTimer>20){ROM["System",table]["Wallpaper",vector]=Screen:entity():getColor()}
-    local FreeEGPID=AppEGPID["FreeEGP",array][1,vector2]
-    if(FreeEGPID:x()>FreeEGPID:y()-50){print("You have less than 50 EGP ID!")}
-    Screen:egpColor(1,ROM["System",table]["Wallpaper",vector]) #Wallpaper color
-    Screen:egpSetText(9,format("%d:%02d", date()["hour",number], date()["min",number])) #Time
-    Screen:egpSetText(10,AppPos:keys():concat(" ")) } #Apps list
-
-local AppListInrange=inrange(CursorPos,vec2(16,Resolution:y()-16),Resolution-vec2(50,0))
-if(changed(AppListInrange)&!AppListInrange){Screen:egpSize(2,vec2())}
-if(AppListInrange){
-    local AppListLength=0 
-    local TextSize=textSizeX(10)
-    for(I=1,AppPos:count()){ 
-        local AppListSize=AppPos:keys()[I,string]:length()*TextSize
-        if(inrange(CursorPos,vec2(AppListLength+16,Resolution:y()-16),vec2(AppListLength+AppListSize,Resolution:y()))){
-        Screen:egpBox(2,vec2(AppListLength+AppListSize/2+16,Resolution:y()-8),vec2(AppListSize,16))
-        if(click()){callApp(AppPos:keys()[I,string]) Screen:egpSetText(10,AppPos:keys():concat(" ")) break} }
-        AppListLength+=AppListSize+TextSize
-    }
+        Screen:egpPos(8,vec2( 3, 3))
 }
 
-#StartMenu
-local IconInrange=inrange(CursorPos,vec2(0,Resolution:y()-16),vec2(16,Resolution:y()))
-if(changed(IconInrange)){Screen:egpAlpha(4,255*IconInrange) for(I=5,8){Screen:egpColor(I,IconInrange ? ROM["System",table]["Theme",vector] : vec(255))} }
-if(IconInrange&click()&!glbN("StartMenu","Active")){appLaunchT("StartMenu")}
+elseif(AppTimer>1&threadClk()){
+    
+    if(appTimer(1000)){
+        if(changed(Screen:entity():getColor())&AppTimer>20){ROM["System",table]["Wallpaper",vector]=Screen:entity():getColor()}
+        local FreeEGPID=AppEGPID["FreeEGP",array][1,vector2]
+        if(FreeEGPID:x()>FreeEGPID:y()-50){print("You have less than 50 EGP ID!")}
+        Screen:egpColor(1,ROM["System",table]["Wallpaper",vector]) #Wallpaper color
+        Screen:egpSetText(9,format("%d:%02d", date()["hour",number], date()["min",number])) #Time
+        Screen:egpSetText(10,AppPos:keys():concat(" ")) #Apps list
+    }
+    
+    local AppListInrange=inrange(CursorPos,vec2(16,Resolution:y()-16),Resolution-vec2(50,0))
+    if(changed(AppListInrange)&!AppListInrange){Screen:egpSize(2,vec2())}
+    if(AppListInrange){
+        local AppListLength = local AppListSize= 0 
+        local TextSize=textSizeX(10)
+        for(I=1,AppPos:count()){ 
+            AppListSize=AppPos:keys()[I,string]:length()*TextSize
+            if(inrange(CursorPos,vec2(AppListLength+16,Resolution:y()-16),vec2(AppListLength+AppListSize,Resolution:y()))){
+            Screen:egpBox(2,vec2(AppListLength+AppListSize/2+16,Resolution:y()-8),vec2(AppListSize,16))
+            if(click()){callApp(AppPos:keys()[I,string]) Screen:egpSetText(10,AppPos:keys():concat(" ")) break} }
+            AppListLength+=AppListSize+TextSize
+        }
+    }
+    
+    #StartMenu
+    local IconInrange=inrange(CursorPos,vec2(0,Resolution:y()-16),vec2(16,Resolution:y()))
+    if(changed(IconInrange)){Screen:egpAlpha(4,255*IconInrange) for(I=5,8){Screen:egpColor(I,IconInrange ? ROM["System",table]["Theme",vector] : vec(255))} }
+    elseif(IconInrange&click()&!glbN("StartMenu","Active")){appLaunchT("StartMenu")}
 }
 
 if(App["StartMenu",table]){ThisApp="StartMenu"
@@ -51,51 +58,59 @@ if(App["StartMenu",table]){ThisApp="StartMenu"
         appN("Active",1) 
         appN("Pos",20) 
         appV2("Size",vec2(200,130+40*(romR("IconList"):count()>9)))
+        appR("AppsList",AllApps:keys():concat("\n"):replace("DialogApp",""):replace("\n\n","\n"):explode("\n"))
         
         AppEGPID[ThisApp,vector2]=vec2(AppEGPID["FreeEGP",array][1,vector2]:x(),EGPCount)
-        AppEGPID["FreeEGP",array][1,vector2][1]=AppEGPID["FreeEGP",array][1,vector2]:x()+EGPCount+1
+        AppEGPID["FreeEGP",array][1,vector2][1]=AppEGPID["FreeEGP",array][1,vector2]:x()+EGPCount+5
         
-    AppLaunch=""}
+        AppLaunch=""
+    }
+    
     local EGP = egp()
     appN("Inrange",egpInrange(EGP))
     local Size = appV2("Size")
     local PosN=appN("PosN")
-    local AllApps=ROM["System",table]["AllApps",table]:keys()
+    local AppsList=appR("AppsList")
     local IconList=romR("IconList")
     
     if(!Screen:egpHasObject(EGP)){
         Screen:egpBox(EGP,vec2(100,appN("PosN")+Resolution:y()+77),Size) Screen:egpColor(EGP,vec4(vec(40),220))
         Screen:egpBox(EGP+2,vec2(),vec2(65,10)) Screen:egpParent(EGP+2,EGP) Screen:egpAlpha(EGP+2,0)
         Screen:egpBoxOutline(EGP+9,vec2(),vec2(38)+Resolution/256) Screen:egpParent(EGP+9,EGP)
-        for(I=1,romR("IconList"):count()){startMenuIcon(I) } }
+        for(I=1,IconList:count()){startMenuIcon(I)}
+    }
     else{
-    if(changed(appN("AllApps"))|!Screen:egpHasObject(EGP+3)){for(I=EGP+3,EGP+8){Screen:egpRemove(I)}
+    if(changed(appN("AllApps"))|!Screen:egpHasObject(EGP+3)){
+        for(I=EGP+3,EGP+8){Screen:egpRemove(I)}
         if(!appN("AllApps")){
             appWhiteText(3,array("Settings","Reboot","Sleep","All Apps"),Size*vec2(-0.5,0.5)+vec2(5,-40),9)
             appWhiteText(4,"Last apps",-Size/2+vec2(4,20),7)
             appWhiteText(5,romR("LastApps"),-Size/2+vec2(5,30),8)
             Screen:egpCircle(EGP+6,-Size/2+vec2(13,10),vec2(8,8)) Screen:egpColor(EGP+6,vec(170)) Screen:egpParent(EGP+6,EGP)
-            appWhiteText(7,owner():name():left(70/textSizeX(8)),-Size/2+vec2(25,6),8) }
-        else{
+            appWhiteText(7,owner():name():left(70/textSizeX(8)),-Size/2+vec2(25,6),8) 
+        }else{
             appWhiteText(3,"< Back",Size*vec2(-0.5,0.5)+vec2(5,-14),9)
             appWhiteText(4,"All apps",-Size/2+vec2(4,9),7)
-            appWhiteText(5,AllApps,-Size/2+vec2(5,19),8)
-            appWhiteText(6,"Long tap for add or delete icon",Size*vec2(-0.5,0.5)+vec2(4,-22),7) Screen:egpColor(EGP+6,vec(128))
-            appScroller(7,"AAScroll",vec2(-26,-7),vec2(10,100),AllApps:count()-1,11) Screen:egpColor(EGP+7,vec(70)) } }
+            local AAScroll = appN("AAScroll")
+            local AddSizeY = (romR("IconList"):count()>9)*4
+            appWhiteText(5,AppsList:concat("\n",AAScroll+1,AAScroll+11+AddSizeY):explode("\n"),-Size/2+vec2(5,19),8)
+            appWhiteText(6,"Long tap to add or delete icon",Size*vec2(-0.5,0.5)+vec2(4,-22),7) Screen:egpColor(EGP+6,vec(128))
+            appScroller(7,"AAScroll",vec2(-26,-7),vec2(10,100+10*AddSizeY),AppsList:count(),11+AddSizeY) Screen:egpColor(EGP+7,vec(70))
+        }
+    }
     
-    appN("PosN",PosN+clamp(-appN("Active")*(Size:y()/2+93)-PosN,-25,25)) PosN=appN("PosN")
+    if(appMouse()&!(appN("Inrange"))){appN("Active",0)} #Close menu if not inrange
+    appN("PosN",PosN+clamp(-appN("Active")*(Size:y()/2+93)-PosN,-100/Threads,100/Threads)) PosN=appN("PosN")
     if(!PosN){AppClose=ThisApp}
-    if(changed(PosN)){Power=25 
+    if(changed(PosN)){
         #Graphics
         Screen:egpPos(EGP,vec2(100,PosN+Resolution:y()+77)) 
         Screen:egpAlpha(EGP,255-PosN*220/(Size:y()/2+93)) Screen:egpAlpha(EGP+5,255-PosN*255/(Size:y()/2+93))
-        for(I=1,IconList:count()){Screen:egpAlpha(EGP+9+I*3,255-PosN*255/(Size:y()/2+93))} }
-    
-    if(!changed(PosN)&(NowPower>=100|sysTimer(100))){
-        if(appMouse()&!(appN("Inrange")|CursorPos==vec2(-1))){appN("Active",0)} #Close menu if not inrange
+        for(I=1,IconList:count()){Screen:egpAlpha(EGP+9+I*3,255-PosN*255/(Size:y()/2+93))} 
+    }
+    elseif(threadClk()){
         if(!appN("AllApps")){
             #About user
-            
             local AboutEI=egpAppInrange(-Size/2,-Size/2+vec2(70,20))
             if(changed(AboutEI)){Screen:egpAlpha(EGP+2,30*AboutEI)}
             if(AboutEI){Screen:egpPos(EGP+2,-Size/2+vec2(37,10)) if(appClick()){DialogApp="About User" appN("Active",0)}}
@@ -113,30 +128,37 @@ if(App["StartMenu",table]){ThisApp="StartMenu"
             local DialogAppCH=appChoiceHelper(Size*vec2(-0.5,0.5)-vec2(0,40),9):y()
             local DialogAppEI=egpAppInrange(Size*vec2(-0.5,0.5)-vec2(0,40),Size*vec2(-0.5,0.5)-vec2(-72,5))
             if(changed(DialogAppEI)){Screen:egpAlpha(EGP+2,30*DialogAppEI)}
-            if(DialogAppEI){if(appClick()){
-                switch(DialogAppCH){
-                case 0, StartMenuChoose="Settings" appN("Active",0) break
-                case 1, DialogApp="Reboot" appN("Active",0) break
-                case 2, DialogApp="Sleep" appN("Active",0) break
-                case 3, appN("AllApps",1) break 
-            }}
-            Screen:egpPos(EGP+2,Size*vec2(-0.5,0.5)+vec2(37,-35+DialogAppCH*9)) } }
+            if(DialogAppEI){
+                if(appClick()){
+                    switch(DialogAppCH){
+                        case 0, StartMenuChoose="Settings" appN("Active",0) break
+                        case 1, DialogApp="Reboot" appN("Active",0) break
+                        case 2, DialogApp="Sleep" appN("Active",0) break
+                        case 3, appN("AllApps",1) break 
+                    }
+                }
+                Screen:egpPos(EGP+2,Size*vec2(-0.5,0.5)+vec2(37,-35+DialogAppCH*9)) 
+            } 
+        }
         else{
             #All apps
+            local AddSizeY = (romR("IconList"):count()>9)*4
             local AllAppsCH=appChoiceHelper(-Size/2+vec2(7,9),8):y()
-            local AllAppsEI=egpAppInrange(-Size/2+vec2(7,20),-Size/2+vec2(70,105))
+            local AllAppsEI=egpAppInrange(-Size/2+vec2(7,20),-Size/2+vec2(70,105+10*AddSizeY))
             if(changed(AllAppsEI)){Screen:egpAlpha(EGP+2,30*AllAppsEI)}
-            appScroller(7,"AAScroll",vec2(-26,-7),vec2(10,100),AllApps:count(),11)
             local AAScroll=appN("AAScroll")
-            Screen:egpSetText(EGP+5,AllApps:concat("\n",AAScroll+1,AAScroll+11))
+            if(appScroller(7,"AAScroll",vec2(-26,-7),vec2(10,100+10*AddSizeY),AppsList:count(),11+AddSizeY)){
+                AAScroll=appN("AAScroll")
+                Screen:egpSetText(EGP+5,AppsList:concat("\n",AAScroll+1,AAScroll+11+AddSizeY))
+            }
             if(AllAppsEI){
-                if(appFastTap()){StartMenuChoose=AllApps[AllAppsCH+AAScroll,string] appN("Active",0)}
+                if(appFastTap()){StartMenuChoose=AppsList[AllAppsCH+AAScroll,string] appN("Active",0)}
                 if(
                     IconList:count()<12&
                     appLongTap()&
-                    AllApps[AllAppsCH,string]
+                    AppsList[AllAppsCH,string]
                 ){
-                    IconList:pushString(AllApps[AllAppsCH+AAScroll,string])
+                    IconList:pushString(AppsList[AllAppsCH+AAScroll,string])
                     startMenuIcon(IconList:count())
                     AppEGPID[ThisApp,vector2][2]=11+IconList:count()*3
                 }
@@ -166,9 +188,9 @@ if(App["StartMenu",table]){ThisApp="StartMenu"
         if(StartMenuSelect){Screen:egpPos(EGP+9,Screen:egpPos(StartMenuSelect))}
         
     if(changed(StartMenuChoose)&StartMenuChoose){
-        if(romR("LastApps"):count()>5){for(I=6,romR("LastApps"):count()){romR("LastApps"):remove(I)}}
         for(I=1,5){if(romR("LastApps")[I,string]==StartMenuChoose){romR("LastApps"):remove(I)}}
         romR("LastApps",array(StartMenuChoose):add(romR("LastApps")))
+        if(romR("LastApps"):count()>5){for(I=6,romR("LastApps"):count()){romR("LastApps"):remove(I)}}
     }
 }} if(appEnd()&StartMenuChoose){appLaunch(StartMenuChoose) StartMenuChoose=""}}
 
@@ -178,10 +200,11 @@ elseif(DialogApp){
     ThisApp=""
     if(dialogApp("Reboot","Action",7,"Do you want to reboot system now?")){reset()}
     if(dialogApp("Sleep","Action",6.5,"Do you want to enter to sleed mode?")){timer("Sleep",250)}
-       dialogApp("About User","BigNotify",10,
-            "Owner: "+owner():name()+
-            "\n"+owner():steamID()+
-            "\n"+(owner():isAdmin() ? "Is admin" : "Is not admin" )+
-            "\n"+"Last Said: "+owner():lastSaid()
-        )
-}elseif(clk("Sleep")){SystemOn=0 Screen:egpSaveFrame("Sleep")}
+    dialogApp("Wrong resolution","Notify",10,"Wrong resolution!")
+    dialogApp("About User","BigNotify",10,
+        "Owner: "+owner():name()+
+        "\n"+owner():steamID()+
+        "\n"+(owner():isAdmin() ? "Is admin" : "Is not admin" )+
+        "\n"+"Last Said: "+owner():lastSaid()
+    )
+}elseif(clk("Sleep")){SystemOn=0 Screen:egpSaveFrame("Sleep") Device:egpClear()}

@@ -4,9 +4,9 @@
 if(appStart("YourApp",vec2(300,150),vec(128,32,64),30)){
     if(appGraphics()){
         #Static objects
-        appBox(1,vec2(40,7),vec2(220,136),vec(255)) }else{
+        appBox(1,vec2(40,7.5),vec2(220,135),vec(255)) }else{
     
-    appChoiceMenu(2,vec2(-150,-61),"Activity",array("Mode 1","Mode 2"))
+    appChoiceMenu(2,vec2(-150,-61),"Activity",array("Mode 1","Mode 2","Mode 3"))
     if(activityManager(5)){switch(appS("Activity")){
         case "Mode 1",
             if(activityGraphics()){
@@ -25,6 +25,12 @@ if(appStart("YourApp",vec2(300,150),vec(128,32,64),30)){
                 appBlackText(7,"Use by: "+find():name(),vec2(-60,-35)) }
             #Functions of 2 mode of YourApp
             Screen:egpSetText(egp(7),"Use by: "+find():name())
+        break
+        case "Mode 3",
+            if(activityGraphics()){
+                #Easter egg
+                appBlackText(5,"TuC-0.2.2 S1 EX11-02-13 Tel %C9I10 Sp3 Img.Hum&@.f-22y-M Rls3% W2+ Dr1 XS.i4 RL3@":shortArray(200/textSizeX(10)),vec2(-60,-55),10) 
+            }
         break
     }}
     

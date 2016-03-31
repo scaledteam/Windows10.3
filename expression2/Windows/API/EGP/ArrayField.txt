@@ -1,63 +1,68 @@
 @name EGP ArrayField
 #Windows 10.3 update 6
 
-function appArrayField(EGPID,VarName:string,Pos:vector2,Size:vector2,Array:array){ #Cost 5 egpID
-    if(!Screen:egpHasObject(egp(EGPID))){ # 1 tick of rendering
+function appArrayField(EGPID,VarName:string,Pos:vector2,Size:vector2,Array:array){ #Cost 4 egpID
+    local EGP = egp(EGPID)
+    if(!Screen:egpHasObject(EGP)){ # 1 tick of rendering
         appBox(EGPID,Pos,Size,vec(255))
-        appBlackText(EGPID+4,Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):explode("\n"),vec2(2,0)-Size/2+Pos,10) Screen:egpFont(egp(EGPID+4),"Courier New") Screen:egpSize(egp(EGPID+4),vec2(Resolution:x(),Size:y())) 
-        appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),Array:count(),Size:y()/10)
-        appBoxOutline(EGPID+1,EGPID,vec2(),Size,vec())
+        appBlackText(EGPID+1,Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):explode("\n"),vec2(2,0)-Size/2+Pos,10) 
+        Screen:egpFont(EGP+1,"Courier New") Screen:egpSize(EGP+1,vec2(Resolution:x(),Size:y()))
+        appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),0,0)
     }else{
-    if(appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),Array:count(),Size:y()/10)){Screen:egpSetText(egp(EGPID+4),Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil",""))}
-    if(Update==(ThisApp+" "+VarName)){Screen:egpSetText(egp(EGPID+4),Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil","")) Update=""}
+    if(appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),Array:count(),Size:y()/10)){Screen:egpSetText(EGP+1,Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil",""))}
+    if(Update==(ThisApp+" "+VarName)){Screen:egpSetText(EGP+1,Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil","")) Update=""}
 }}
 
-function appArrayFieldShort(EGPID,VarName:string,Pos:vector2,Size:vector2,Array:array){ #Cost 5 egpID
-    if(!Screen:egpHasObject(egp(EGPID))){ # 1 tick of rendering
-        appBox(EGPID,Pos,Size,vec(255)) }else{
-    if(!Screen:egpHasObject(egp(EGPID+1))){ # 2 tick of rendering
-        appR(VarName+"Array",Array:shortArray(Size:x()/textSizeX(10)))
-        appBlackText(EGPID+4,appR(VarName+"Array"):concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):explode("\n"),vec2(2,0)-Size/2+Pos,10) Screen:egpFont(egp(EGPID+4),"Courier New") Screen:egpSize(egp(EGPID+4),vec2(Resolution:x(),Size:y())) 
-        appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),Array:count(),Size:y()/10)
-        appBoxOutline(EGPID+1,EGPID,vec2(),Size,vec())
-    }else{
-    if(appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),appR(VarName+"Array"):count(),Size:y()/10)){Screen:egpSetText(egp(EGPID+4),appR(VarName+"Array"):concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil",""))}
-    if(Update==(ThisApp+" "+VarName)){appR(VarName+"Array",Array:shortArray(Size:x()/textSizeX(10))) Screen:egpSetText(egp(EGPID+4),appR(VarName+"Array"):concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil","")) Update="" }
-}}}
-
-function appArrayFieldCut(EGPID,VarName:string,Pos:vector2,Size:vector2,Array:array){ #Cost 5 egpID
-    if(!Screen:egpHasObject(egp(EGPID))){ # 1 tick of rendering
-        appBox(EGPID,Pos,Size,vec(255)) }else{
-    if(!Screen:egpHasObject(egp(EGPID+1))){ # 2 tick of rendering
-        appR(VarName+"Array",Array:cutArray(Size:x()/textSizeX(10)))
-        appBlackText(EGPID+4,appR(VarName+"Array"):concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):explode("\n"),vec2(2,0)-Size/2+Pos,10) Screen:egpFont(egp(EGPID+4),"Courier New") Screen:egpSize(egp(EGPID+4),vec2(Resolution:x(),Size:y())) 
-        appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),Array:count(),Size:y()/10)
-        appBoxOutline(EGPID+1,EGPID,vec2(),Size,vec())
-    }else{
-    if(appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),appR(VarName+"Array"):count(),Size:y()/10)){Screen:egpSetText(egp(EGPID+4),appR(VarName+"Array"):concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil",""))}
-    if(Update==(ThisApp+" "+VarName)){appR(VarName+"Array",Array:cutArray(Size:x()/textSizeX(10))) Screen:egpSetText(egp(EGPID+4),appR(VarName+"Array"):concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil","")) Update="" }
-}}}
-
-function appArrayFieldUse(EGPID,VarName:string,Pos:vector2,Size:vector2,Array:array){ #Cost 6 egpID
-    if(!Screen:egpHasObject(egp(EGPID))){
+function appArrayFieldShort(EGPID,VarName:string,Pos:vector2,Size:vector2,Array:array){ #Cost 4 egpID
+    local EGP = egp(EGPID)
+    if(!Screen:egpHasObject(EGP)){
         appBox(EGPID,Pos,Size,vec(255))
-        appBox(EGPID+5,Pos+vec2(-5,10*(appN(VarName)-appN(VarName+"List"))-40),vec2(Size:x()-10,10),ROM["System",table]["Theme",vector]) Screen:egpAlpha(egp(EGPID+5),0)
-        appBlackText(EGPID+4,Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil",""):explode("\n"),vec2(2,0)-Size/2+Pos,10) Screen:egpFont(egp(EGPID+4),"Courier New") Screen:egpSize(egp(EGPID+4),vec2(Resolution:x(),Size:y())) 
-        appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),Array:count(),Size:y()/10)
-        appBoxOutline(EGPID+1,EGPID,vec2(),Size,vec())
+        if(AppResize!=ThisApp){appR(VarName+"Array",Array:shortArray(Size:x()/textSizeX(10)))}
+        appBlackText(EGPID+1,appR(VarName+"Array"):concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil",""):explode("\n"),vec2(2,0)-Size/2+Pos,10) 
+        Screen:egpFont(EGP+1,"Courier New") Screen:egpSize(EGP+1,vec2(Resolution:x(),Size:y()))
+        appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),0,0)
+    }else{
+    if(appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),appR(VarName+"Array"):count(),Size:y()/10)){
+        Screen:egpSetText(EGP+1,appR(VarName+"Array"):concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil","")) }
+    if(Update==(ThisApp+" "+VarName)){appR(VarName+"Array",Array:shortArray(Size:x()/textSizeX(10))) Screen:egpSetText(EGP+1,appR(VarName+"Array"):concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil","")) Update="" }
+}}
+
+function appArrayFieldCut(EGPID,VarName:string,Pos:vector2,Size:vector2,Array:array){ #Cost 4 egpID
+    local EGP = egp(EGPID)
+    if(!Screen:egpHasObject(EGP)){
+        appBox(EGPID,Pos,Size,vec(255))
+        appBlackText(EGPID+1,Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):explode("\n"):cutArray(Size:x()/textSizeX(10)),vec2(2,0)-Size/2+Pos,10) 
+        Screen:egpFont(EGP+1,"Courier New") Screen:egpSize(EGP+1,vec2(Resolution:x(),Size:y()))
+        appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),0,0)
     }else{
     if(appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),Array:count(),Size:y()/10)){
-        Screen:egpSetText(egp(EGPID+4),Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil",""))
-        if(inrange((appN(VarName)-int(appN(VarName+"List"))),1,Size:y()/10)){Screen:egpPos(egp(EGPID+5),Pos+vec2(-5,10*(appN(VarName)-int(appN(VarName+"List")))-Size:y()/2-5))} }
-    if(!appN(VarName+"Ignore")&egpAppInrange(-Size/2+Pos,vec2(-10,0)+Size/2+Pos)){
-        if(appMouse()){
-            Screen:egpPos(egp(EGPID+5),Pos+vec2(-5,10*(appChoiceHelper(Pos-Size/2,10):y()+1+appN(VarName+"List")-appN(VarName+"List"))-Size:y()/2-5)) Screen:egpAlpha(egp(EGPID+5),255) }
-        if(appClick()){
-            appN(VarName,appChoiceHelper(Pos-Size/2,10):y()+1+appN(VarName+"List")) } }
-    if(Update==(ThisApp+" "+VarName)){Screen:egpSetText(egp(EGPID+4),Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil","")) Update=""}
+        Screen:egpSetText(EGP+1,Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):explode("\n"):cutArray(Size:x()/textSizeX(10)):concat("\n"):replace("nil","") ) }
+    if(Update==(ThisApp+" "+VarName)){Screen:egpSetText(EGP+1,Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):explode("\n"):cutArray(Size:x()/textSizeX(10)):concat("\n"):replace("nil","")) Update="" }
 }}
 
-function appArrayFieldUseCTM(EGPID,VarName:string,Pos:vector2,Size:vector2,Array:array,ContextMenu:array){ #Cost 6 egpID
+function appArrayFieldUse(EGPID,VarName:string,Pos:vector2,Size:vector2,Array:array){ #Cost 5 egpID
+    local EGP = egp(EGPID)
+    if(!Screen:egpHasObject(EGP)){
+        appBox(EGPID,Pos,Size,vec(255))
+        appBox(EGPID+4,Pos+vec2(-5,10*(appN(VarName)-appN(VarName+"List"))-40),vec2(Size:x()-10,10),ROM["System",table]["Theme",vector]) Screen:egpAlpha(EGP+4,0)
+        appBlackText(EGPID+1,Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil",""):explode("\n"),vec2(2,0)-Size/2+Pos,10) 
+        Screen:egpFont(EGP+1,"Courier New") Screen:egpSize(EGP+1,vec2(Resolution:x(),Size:y()))
+        appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),0,0)
+    }else{
+    if(appScroller(EGPID+2,VarName+"List",Pos+vec2(Size:x()/2-5,0),vec2(10,Size:y()),Array:count(),Size:y()/10)){
+        Screen:egpSetText(EGP+1,Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil",""))
+        if(inrange((appN(VarName)-int(appN(VarName+"List"))),1,Size:y()/10)){
+            Screen:egpPos(EGP+4,Pos+vec2(-5,10*(appN(VarName)-int(appN(VarName+"List")))-Size:y()/2-5)) } }
+    if(!appN(VarName+"Ignore")&egpAppInrange(-Size/2+Pos,vec2(-10,0)+Size/2+Pos)){
+        if(appMouse()){
+            Screen:egpPos(EGP+4,Pos+vec2(-5,10*(appChoiceHelper(Pos-Size/2,10):y()+1+appN(VarName+"List")-appN(VarName+"List"))-Size:y()/2-5)) Screen:egpAlpha(EGP+4,255) }
+        if(appClick()){
+            appN(VarName,appChoiceHelper(Pos-Size/2,10):y()+1+appN(VarName+"List")) } }
+    if(Update==(ThisApp+" "+VarName)){Screen:egpSetText(EGP+1,Array:concat("\n",appN(VarName+"List")+1,appN(VarName+"List")+Size:y()/10):replace("nil","")) Update=""}
+}}
+
+function appArrayFieldUseCTM(EGPID,VarName:string,Pos:vector2,Size:vector2,Array:array,ContextMenu:array){ #Cost 5 egpID
     appArrayFieldUse(EGPID,VarName,Pos,Size,Array)
     if(appContextMenu(VarName+"Action",appClick()&egpAppInrange(-Size/2+Pos,vec2(-10,0)+Size/2+Pos),ContextMenu)){appN(VarName+"Ignore",1)}
-    elseif(appN(VarName+"Ignore")){appN(VarName+"Ignore",0)} }
+    elseif(appN(VarName+"Ignore")){appN(VarName+"Ignore",0)} 
+}

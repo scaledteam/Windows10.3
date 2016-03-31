@@ -1,44 +1,20 @@
 @name Windows10.3
 @inputs [Screen Device]:wirelink Keyboard
-@persist SystemOn Resolution:vector2 #System
-@persist ROM:gtable FullLoad #ROM
-@persist CursorPos:vector2 Mouse1 ChangedMouse1 #IO
-@persist SysTimerNum SysTimer Power NowPower AppTimerNum AppTimer #Timer
 
 if(duped()){reset()}
 if(first()){
     #include "Windows/System/API"
-    
-    findIncludeClass("player") findUser()
-    timer("SystemOn",1000)
-    
-    #Windows logo 
-    Resolution=autoResolution()
-    Screen:egpClear()
-    Screen:egpBox(1,Resolution/2,Resolution) Screen:egpColor(1,vec())
-    Screen:egpPoly(2,vec2(-40,32),vec2(-40,-32),vec2(46,-44),vec2(46,44)) Screen:egpColor(2,vec(0,220,255))
-    Screen:egpBox(3,vec2(),vec2(100,4)) Screen:egpColor(3,vec())
-    Screen:egpBox(4,vec2(),vec2(4,100)) Screen:egpColor(4,vec())
-    for(I=2,5){Screen:egpParent(I,1)}
-    #Set resolution
-    Screen:egpResolution(vec2(),Resolution)
+    #include "Windows/System/First"
 }
-if(changed(SystemOn)&!SystemOn&!first()){Screen:egpClear()}
-if(!SystemOn){ #System On
+if(changed(SystemOn)&!SystemOn&!first()){
+    Screen:egpClear() Device:egpClear()
+}
+if(!SystemOn){ #System Off
     if(changed(Screen)){reset()}
     #include "Windows/System/SystemOff"
-}else{ #System On
-    NowPower=Power interval(Power) Power=100
-    SysTimerNum=AppTimerNum=0 SysTimer++ AppTimer+=!mod(SysTimer,int(100/NowPower))
-    
-    if(appTimer(1000)){findUser()}
-    CursorPos=Screen:egpCursor(find())
-    if(!find():inVehicle()){Mouse1=find():keyUse()|find():keyPressed("e")}else{Mouse1=find():keyAttack1()} ChangedMouse1=changed(Mouse1)
-    
-    if(Device&Device:entity():type():find("egp")){
-        Screen:egpSaveFrame("Screen2")
-        Device:egpLoadFrame("Screen2") }
-    
+}
+else{ #System On
+    #include "Windows/System/SystemOn"
     if(FullLoad){#include "Windows/System/FullLoad"}
     #include "Windows/Apps/SysApps"
     
@@ -48,5 +24,6 @@ if(!SystemOn){ #System On
     ##include "Windows/Apps/DeviceKit"
     #include "Windows/Apps/TestKit"
     #include "Windows/Apps/3DKit"
-    #include "Windows/Apps/MyApps"
+    ##include "Windows/Apps/MyApps"
+    ##include "Windows/Apps/ThreadTest"
 }

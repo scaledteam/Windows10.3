@@ -1,45 +1,53 @@
 @name SystemOff
-#Windows 10.3 update 6
-if(find():keyUse()&find():aimEntity()==Screen:entity()){SystemOn=1 Screen:egpLoadFrame("Sleep") } #Wake up system
+#Windows 10.3 update 7
+timer("1",1000)
 
-timer("1",1000) if(clk("1")){findUser()}
+findUser()
+if(find():keyUse()&find():aimEntity()==Screen:entity()){ #Wake up system
+    SystemOn=1 Screen:egpLoadFrame("Sleep") 
+}
 
 #Load ROM data
 if(Screen&clk("SystemOn")){
     Screen:egpClear()
-    ROM=gTable("Windows10/Win"+entity():id())
+    ROM=gTable("Win"+entity():id())
     
     #Set default ROM
-    if(ROM["Version",string]!="2.1"){
+    if(ROM["Version",number]!=2.2){
         #Standart values
         ROM["System",table]=table()
-            ROM["System",table]["Resolution",vector2]=Resolution
-            ROM["System",table]["Wallpaper",vector]=floor(randvec(0,255))
-            ROM["System",table]["Theme",vector]=vec(150)
+            local RandColor = random(360)
+            ROM["System",table]["Wallpaper",vector]=floor(hsv2rgb(RandColor,1,0.7))
+            ROM["System",table]["Theme",vector]=floor(hsv2rgb(RandColor,0.7,1))
+            ROM["System",table]["Resolution",vector2]=autoResolution()
             ROM["System",table]["FullLoad",number]=FullLoad=1
             ROM["System",table]["Control",number]=1
             ROM["System",table]["CreateDate",table]=date()
-            ROM["System",table]["AllApps",table]=table()
-        ROM["Version",string]="2.1"
+            ROM["System",table]["NFLStartUp",string]="TaskM"
+            ROM["System",table]["SoundEnable",number]=1
+        ROM["Version",number]=2.2
         ROM["Apps",table]=table()
             ROM["Apps",table]["StartMenu",table]=table()
-            ROM["Apps",table]["StartMenu",table]["LastApps",array]=array("Settings","TaskM","DialogApp")
+            ROM["Apps",table]["StartMenu",table]["LastApps",array]=array("Settings","TaskM")
             ROM["Apps",table]["StartMenu",table]["IconList",array]=array("TaskM","Settings")
-        runSystem(StartEGPID) appLaunchT("Settings","Files") 
-    }else{
-    #Set saved resolution
+        appLaunchT("Settings","Files") 
+    }
+    #Launch system
+    if(ROM["Version",number]==2.2){
+        #Set saved resolution
         Resolution=ROM["System",table]["Resolution",vector2]
-        if(Resolution:x()<300|Resolution:y()<150){Resolution=autoResolution()}
-        FullLoad=ROM["System",table]["FullLoad",number]
-        ROM["System",table]["AllApps",table]=table()
-        if(ROM["System",table]["FullLoad",number]){#FullLoad
-            runSystem(StartEGPID)
-        }else{runSystem(1) #NoFullLoad
-            print("Now you entered in NoFullLoad mode. ThisApp is just a system without Start menu. Here you have more EGP memory. You can make your start menu, fullscreen app or somethink same.") 
-            appLaunchT("TaskM") 
+        if(Resolution:x()<300|Resolution:y()<150){
+            ROM["System",table]["Resolution",vector2]=Resolution=autoResolution()
+            DialogApp="Wrong resolution"
         }
+        
+        #FullLoad
+        FullLoad=ROM["System",table]["FullLoad",number]
+        if(!FullLoad){appLaunchT(ROM["System",table]["NFLStartUp",string])}
+        runSystem(FullLoad ? StartEGPID : 1)
     }
     
     #Set resolution
     Screen:egpResolution(vec2(),Resolution) 
 }
+

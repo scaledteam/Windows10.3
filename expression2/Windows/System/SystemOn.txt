@@ -1,0 +1,47 @@
+@name SystemOn
+#Windows 10.3 update 7
+@persist CursorPos:vector2 Mouse1 ChangedMouse1 #IO
+@persist SysTimerNum SysTimer Threads NowThreads AppTimerNum AppTimer #Timer
+@persist DialogAppChanged SysTextEnableChanged #Changed
+
+#Timers
+NowThreads=Threads=clamp(Threads,1,6)
+interval(100/Threads)
+Threads=4
+SysTimerNum=AppTimerNum=0
+if(clk()){
+    SysTimer++
+    AppTimerClk = !mod(SysTimer,NowThreads)
+    AppTimer+=AppTimerClk
+}
+
+#Mouse
+if(appTimer(1000)){findUser()}
+CursorPosReal=Screen:egpCursor(find())
+if(CursorPosReal!=vec2(-1)){
+    CursorPos=CursorPosReal
+    if(AppTimerClk){
+        if(!find():inVehicle()){Mouse1=find():keyUse()|find():keyPressed("e")}
+        else{Mouse1=find():keyAttack1()}
+    }
+}
+
+if(AppTimerClk){
+    #Click event and sound
+    ChangedMouse1=changed(Mouse1)
+    if(click()){sound("Click")}
+    
+    #NoFullLoad
+    if(!FullLoad&!App:count()){ROM["System",table]["FullLoad",number]=1 reset()}
+    
+    
+    #Changed
+    SysTextEnableChanged=changed(SysTextEnable)
+    DialogAppChanged=changed(DialogApp)
+}
+
+#Screen mirroring
+if(Device&Device:entity():type():find("egp")){
+    Screen:egpSaveFrame("Mirror")
+    Device:egpLoadFrame("Mirror")
+}

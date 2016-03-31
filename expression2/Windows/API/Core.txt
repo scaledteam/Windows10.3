@@ -1,6 +1,6 @@
 @name API Core
-#Windows 10.3 update 6
-function number apiVersion(){return 4.2}
+#Windows 10.3 update 7
+@persist LongTap SysText:string SysTextTimer
 
 #Mouse events
 function number appMouse(){return Mouse1&AppPos[ThisApp,number]==1}
@@ -14,13 +14,18 @@ function number appFastTap(){if(ChangedMouse1&appMouse()){LongTap=AppTimer} if((
 function number appLongTap(){if(ChangedMouse1&appMouse()){LongTap=AppTimer} if((AppTimer-LongTap)>7&appMouse()&LongTap) {LongTap=0 return 1} if(!Mouse1&AppPos[ThisApp,number]==1){LongTap=0} return 0}
 
 #System
-function string sysText(){if(changed(Keyboard)&Keyboard!=13&Keyboard!=154&!inrange(Keyboard,19,20)){if(Keyboard!=127){
-    SysText=SysText:sub(1,SysText:length()-SysTextLine)+toChar(Keyboard)+SysText:sub(SysText:length()-SysTextLine+1,SysText:length()) }
-    else{SysText=SysText:sub(1,SysText:length()-SysTextLine-1)+SysText:sub(SysText:length()-SysTextLine+1,SysText:length()) }} return SysText}
-
-function findUser(){
-    if(!ROM["System",table]["Control",number]){findInSphere(entity():pos(),70) findSortByDistance(entity():pos())}
-    else{findInSphere(Screen:entity():pos(),70) findSortByDistance(Screen:entity():pos())} }
+function string sysText(){
+    if(Keyboard&Keyboard!=154){SysTextTimer++}else{SysTextTimer=0}
+    if((changed(Keyboard)|SysTextTimer>5)&Keyboard!=13&Keyboard!=154&!inrange(Keyboard,19,20)){
+        local Length=SysText:length()
+        if(Keyboard!=127){
+            SysText=SysText:sub(1,Length-SysTextLine)+toChar(Keyboard)+SysText:sub(Length-SysTextLine+1,Length)
+        }elseif(SysTextLine!=Length){
+            SysText=SysText:sub(1,Length-SysTextLine-1)+SysText:sub(Length-SysTextLine+1,Length)
+        }
+    }
+    return SysText
+}
 
 function vector2 autoResolution(){
     local ScreenSize=Screen:entity():aabbSize()
@@ -32,18 +37,46 @@ function vector2 autoResolution(){
     if(ScreenSize:y()==ScreenSize:x()){AutoResolution=vec2(512)}
 return AutoResolution}
 
+function findUser(){
+    local Pos = ROM["System",table]["Control",number] ? Screen:entity():pos() : entity():pos()
+    findInSphere(Pos,70) findSortByDistance(Pos) }
+
 function runSystem(EGPIDofApps){SystemOn=1 AppEGPID["FreeEGP",array]=array(vec2(EGPIDofApps+4,egpMaxObjects())) timer("runSystem",1) stoptimer("1")}
 
+function sound(Name:string){
+    if(ROM["System",table]["SoundEnable",number]){
+        local Sound = ""
+        local Entity = ROM["System",table]["Control",number] ? Screen:entity() : entity()
+        switch(Name){
+            case "Click", Sound = "buttons/button1.wav"  Length=0.05 break
+            case "Open", Sound = "buttons/button9.wav"   Length=0.1 break
+            case "Close", Sound = "buttons/button15.wav" Length=0.1 break
+        }
+        Entity:soundPlay(Name,Length,Sound)
+    }
+}
+
+#Timers
+function number sysTimer(Latency){if(clk()){SysTimerNum-- return !mod(SysTimer+SysTimerNum,int(Latency*NowThreads/100))} return 0}
+function number appTimer(Latency){if(clk()){AppTimerNum-- return !mod(AppTimer+AppTimerNum,int(Latency/100))} return 0}
+function number threadClk(){return Threads==1|sysTimer(100)}
+
 #Other
-function array  array:shortArray(Size:normal){local Return = array() foreach(J, S:string = This){for(I = 1, S:length(), Size){Return:pushString(S:sub(I, I+Size-1))}} return Return }
+function array  array:shortArray(Size){local Return = array() foreach(J, S:string = This){for(I = 1, S:length(), Size){Return:pushString(S:sub(I, I+Size-1))}} return Return }
 function array string:shortArray(Size){local Resuilt=array() for(I=1,int(This:length()/Size+1)){Resuilt:pushString(This:sub(1+Size*(I-1),Size*I))} return Resuilt}
 
 function array  array:cutArray(Size){local Resuilt=array() foreach(I,N:string=This){Resuilt[I,string]=N:left(Size)} return Resuilt}
 
 function string appChat(FunctionName:string){runOnChat(1)
     #!win AppName Varriable String
-    if(chatClk(find())){local AppChat=find():lastSaid():explode(" ") 
-        if(AppChat[1,string]=="!win"&AppChat[2,string]==ThisApp&AppChat[3,string]==FunctionName){hideChat(1) return AppChat[4,string]} } return "" }
+    if(chatClk(find())){
+        local AppChat=find():lastSaid():explode(" ") 
+        if(AppChat[1,string]=="!win"&AppChat[2,string]==ThisApp&AppChat[3,string]==FunctionName){
+            hideChat(1) 
+            return AppChat[4,string]
+        } 
+    } 
+return "" }
 
 function appChat(){runOnChat(1)
     #!win AppName Varriable Type Number
@@ -60,5 +93,4 @@ function appChat(){runOnChat(1)
             case "angle",  appA(AppChat[3,string],ang(AppChatExplode[1,string]:toNumber(),AppChatExplode[2,string]:toNumber(),AppChatExplode[3,string]:toNumber())) break
             case "entity", appE(AppChat[3,string],entity(AppChat[5,string]:toNumber())) break
             case "void", App[AppChat[2,string],table]:remove(AppChat[3,string]) break
-        }
-}}}}
+}}}}}

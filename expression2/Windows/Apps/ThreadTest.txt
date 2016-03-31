@@ -1,0 +1,26 @@
+@name ThreadTest
+#Windows 10.3 update 7
+
+for(I=1,5){
+    if(appStart("App"+I,vec2(100),vec(230),2)){
+        if(appGraphics()){
+            appBlackText(1,"Thread:",vec2(0,-20),10,1)
+            appBlackText(2,"",vec2(0,-10),40,1)
+        }
+        Screen:egpSetText(egp(2),mod(SysTimer,NowThreads)+"")
+    appEnd()}
+}
+
+if(thread("App6")){
+    print("Thread "+mod(SysTimer,NowThreads))
+}
+
+for(I=6,10){
+    if(appStart("App"+I,vec2(100),vec(230),2)){
+        if(appGraphics()){
+            appBlackText(1,"Thread:",vec2(0,-20),10,1)
+            appBlackText(2,"",vec2(0,-10),40,1)
+        }
+        Screen:egpSetText(egp(2),mod(SysTimer,NowThreads)+"")
+    appEnd()}
+}

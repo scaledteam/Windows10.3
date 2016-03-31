@@ -1,22 +1,47 @@
 @name EGP EditText
 #Windows 10.3 update 6
+@persist SysTextEnable SysTextLine
+
+function appEditTextChangeString(EGPID,VarName:string){
+    SysTextEnable=egp(EGPID)
+    SysTextLine=0
+    SysText=appS(VarName)
+}
+
+function appEditTextChangeNumber(EGPID,VarName:string){
+    SysTextEnable=egp(EGPID)
+    SysTextLine=0
+    SysText=appN(VarName):toString()
+}
 
 function number appEditTextString(EGPID,VarName:string,Pos:vector2,Size){ #Cost 3 egpID.
     local EGP=egp(EGPID)
     local TextSize=textSizeX(10)
     if(!Screen:egpHasObject(EGP)){
         appBox(EGPID,Pos,vec2(Size,15),vec(255))
-        appBoxOutline(EGPID+1,EGPID,vec2(),vec2(Size,15),vec())
-        appBlackText(EGPID+2,EGPID,appS(VarName):right(Size/TextSize),vec2(-Size+5,-10)/2,10,0) Screen:egpFont(EGP+2,"Courier New") }else{
-    if(appClick()&egpInrange(EGP)){SysTextEnable=EGP}
-    if(changed(SysTextEnable)){SysText="" SysTextLine=0 Screen:egpSetText(EGP+2,appS(VarName):right(Size/TextSize))}
+        appBoxOutline(EGPID+1,EGPID,vec2(),vec2(Size,15),vec(180))
+        appBlackText(EGPID+2,EGPID,appS(VarName):right(Size/TextSize),vec2(-Size+5,-10)/2,10,0)
+        Screen:egpFont(EGP+2,"Courier New")
+    }else{
+    if(appClick()&egpInrange(EGP)){appEditTextChangeString(EGPID,VarName)}
     if(SysTextEnable==EGP){
+        Screen:egpColor(EGP+1,ROM["System",table]["Theme",vector])
         if(changed(Keyboard)){
             if(Keyboard==19&SysTextLine<SysText:length()){SysTextLine++} 
-            if(Keyboard==20&SysTextLine>0){SysTextLine--} }
-        appS(VarName,sysText()) local Length=SysText:length()
-        Screen:egpSetText(EGP+2,(SysText:sub(1,Length-SysTextLine)+((date()["sec",number]%2) ? "|" : " ")+SysText:sub(Length-SysTextLine+1,Length)):right(Size/TextSize)) }
-    if(Keyboard==13){Screen:egpSetText(EGP+2,appS(VarName):right(Size/textSizeX(10))) SysTextEnable=0 return 1}
+            if(Keyboard==20&SysTextLine>0){SysTextLine--}
+            if(Keyboard==13){sound("Click") return 1}
+        }
+        appS(VarName,sysText()) 
+        local Length=SysText:length()
+        local FieldLength=int(Size/TextSize)
+        local OffSet=0
+        if(!inrange(SysTextLine,0,FieldLength)){OffSet=clamp(SysTextLine-int(FieldLength/2),0,Length-FieldLength)}
+        Screen:egpSetText(EGP+2,(SysText:sub(1,Length-SysTextLine)+((date()["sec",number]%2) ? "|" : " ")+SysText:sub(Length-SysTextLine+1,Length)):sub(Length+1-OffSet-clamp(Length+1,0,FieldLength),Length+1-OffSet))
+    }
+    elseif(SysTextEnableChanged){
+        Screen:egpSetText(EGP+2,appS(VarName):right(Size/TextSize))
+        Screen:egpColor(EGP+1,vec(180))
+    }
 } return 0}
 
 function number appEditTextNumber(EGPID,VarName:string,Pos:vector2,Size){ #Cost 3 egpID.
@@ -24,15 +49,27 @@ function number appEditTextNumber(EGPID,VarName:string,Pos:vector2,Size){ #Cost 
     local TextSize=textSizeX(10)
     if(!Screen:egpHasObject(EGP)){
         appBox(EGPID,Pos,vec2(Size,15),vec(255,255,255))
-        appBoxOutline(EGPID+1,EGPID,vec2(),vec2(Size,15),vec())
-        appBlackText(EGPID+2,EGPID,appN(VarName):toString():right(Size/TextSize),vec2(-Size+5,-10)/2,10,0) Screen:egpFont(EGP+2,"Courier New") }else{
-    if(appClick()&egpInrange(EGP)){SysTextEnable=EGP}
-    if(changed(SysTextEnable)){SysText="" SysTextLine=0 Screen:egpSetText(EGP+2,appN(VarName):toString():right(Size/TextSize))}
+        appBoxOutline(EGPID+1,EGPID,vec2(),vec2(Size,15),vec(180))
+        appBlackText(EGPID+2,EGPID,appN(VarName):toString():right(Size/TextSize),vec2(-Size+5,-10)/2,10,0)
+        Screen:egpFont(EGP+2,"Courier New")
+    }else{
+    if(appClick()&egpInrange(EGP)){appEditTextChangeNumber(EGPID,VarName)}
     if(SysTextEnable==EGP){
+        Screen:egpColor(EGP+1,ROM["System",table]["Theme",vector])
         if(changed(Keyboard)){
             if(Keyboard==19&SysTextLine<SysText:length()){SysTextLine++}
-            if(Keyboard==20&SysTextLine>0){SysTextLine--} } 
-            appN(VarName,sysText():toNumber()) local Length=SysText:length()
-        Screen:egpSetText(EGP+2,(SysText:sub(1,Length-SysTextLine)+((date()["sec",number]%2) ? "|" : " ")+SysText:sub(Length-SysTextLine+1,Length)):right(Size/TextSize)) }
-    if(Keyboard==13){Screen:egpSetText(EGP+2,appN(VarName):toString():right(Size/TextSize)) SysTextEnable=0 return 1}else{return 0}
+            if(Keyboard==20&SysTextLine>0){SysTextLine--}
+            if(Keyboard==13){sound("Click") return 1}
+        }
+        appN(VarName,sysText():toNumber()) 
+        local Length=SysText:length()
+        local FieldLength=int(Size/TextSize)
+        local OffSet=0
+        if(!inrange(SysTextLine,0,FieldLength)){OffSet=clamp(SysTextLine-int(FieldLength/2),0,Length-FieldLength)}
+        Screen:egpSetText(EGP+2,(SysText:sub(1,Length-SysTextLine)+((date()["sec",number]%2) ? "|" : " ")+SysText:sub(Length-SysTextLine+1,Length)):sub(Length+1-OffSet-clamp(Length+1,0,FieldLength),Length+1-OffSet))
+    }
+    elseif(SysTextEnableChanged){
+        Screen:egpSetText(EGP+2,appN(VarName):toString():right(Size/TextSize))
+        Screen:egpColor(EGP+1,vec(180))
+    }
 } return 0}
